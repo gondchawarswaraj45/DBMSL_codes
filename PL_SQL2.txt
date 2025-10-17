@@ -1,0 +1,106 @@
+mysql> create database Students;
+Query OK, 1 row affected (0.08 sec)
+
+mysql> use Students;
+Database changed
+ 
+14 rows in set (0.01 sec)
+mysql> CREATE TABLE Stud_Marks (
+    ->   Roll INT PRIMARY KEY,
+    ->   Name VARCHAR(50),
+    ->   Total_Marks INT
+    -> );
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> 
+mysql> CREATE TABLE Result (
+    ->   Roll INT PRIMARY KEY,
+    ->   Name VARCHAR(50),
+    ->   Class VARCHAR(30)
+    -> );
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES
+    -> (101,'Aditi',1500),
+    -> (102,'Bhavesh',1300),
+    -> (103,'Chirag',995),
+    -> (104,'Disha',990),
+    -> (105,'Esha',989),
+    -> (106,'Farhan',950),
+    -> (107,'Gauri',900),
+    -> (108,'Harsh',899),
+    -> (109,'Ira',850),
+    -> (110,'Jai',825),
+    -> (111,'Kiran',824),
+    -> (112,'Leena',700),
+    -> (113,'Manav',1200),
+    -> (114,'Nisha',100);
+Query OK, 14 rows affected (0.03 sec)
+Records: 14  Duplicates: 0  Warnings: 0
+
+mysql> select * from Stud_Marks;
++------+---------+-------------+
+| Roll | Name    | Total_Marks |
++------+---------+-------------+
+|  101 | Aditi   |        1500 |
+|  102 | Bhavesh |        1300 |
+|  103 | Chirag  |         995 |
+|  104 | Disha   |         990 |
+|  105 | Esha    |         989 |
+|  106 | Farhan  |         950 |
+|  107 | Gauri   |         900 |
+|  108 | Harsh   |         899 |
+|  109 | Ira     |         850 |
+|  110 | Jai     |         825 |
+|  111 | Kiran   |         824 |
+|  112 | Leena   |         700 |
+|  113 | Manav   |        1200 |
+|  114 | Nisha   |         100 |
++------+---------+-------------+
+14 rows in set (0.00 sec)
+
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE PROCEDURE proc_Grade(IN p_roll INT)
+    -> BEGIN
+    ->     DECLARE v_name  VARCHAR(50);
+    ->     DECLARE v_marks INT;
+    ->     DECLARE v_class VARCHAR(30);
+    -> 
+    ->     SELECT Name, Total_Marks INTO v_name, v_marks
+    ->     FROM Stud_Marks
+    ->     WHERE Roll = p_roll;
+    -> 
+    ->     IF v_marks BETWEEN 990 AND 1500 THEN
+    ->         SET v_class = 'Distinction';
+    ->     ELSEIF v_marks BETWEEN 900 AND 989 THEN
+    ->         SET v_class = 'First Class';
+    ->     ELSEIF v_marks BETWEEN 825 AND 899 THEN
+    ->         SET v_class = 'Higher Second Class';
+    ->     ELSE
+    ->         SET v_class = 'No Category';
+    ->     END IF;
+    -> 
+    ->     INSERT INTO Result (Roll, Name, Class)
+    ->     VALUES (p_roll, v_name, v_class)
+    ->     ON DUPLICATE KEY UPDATE Name = VALUES(Name), Class = VALUES(Class);
+    -> END$$
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> CALL proc_Grade(101);  -- grade student with Roll=101
+Query OK, 1 row affected, 2 warnings (0.09 sec)
+
+mysql> CALL proc_Grade(102);  -- grade student with Roll=102
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from Result;
++------+---------+-------------+
+| Roll | Name    | Class       |
++------+---------+-------------+
+|  101 | Aditi   | Distinction |
+|  102 | Bhavesh | Distinction |
++------+---------+-------------+
+2 rows in set (0.00 sec)

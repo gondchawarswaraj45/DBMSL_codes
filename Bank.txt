@@ -1,0 +1,828 @@
+Practical Assignment No.2 Part B
+
+swaraj@swaraj-VirtualBox:~$ sudo mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.4.6-0ubuntu0.25.04.3 (Ubuntu)
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases ;
++--------------------+
+| Database           |
++--------------------+
+| Events             |
+| Lib                |
+| Lib1               |
+| STUD               |
+| Sales              |
+| Students           |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+10 rows in set (0.00 sec)
+
+mysql> create database Bank;
+Query OK, 1 row affected (0.09 sec)
+
+mysql> use Bank;
+Database changed
+mysql> CREATE TABLE IF NOT EXISTS branch (
+    ->     branch_name VARCHAR(50) PRIMARY KEY,
+    ->     branch_city VARCHAR(50),
+    ->     assets DECIMAL(15,2)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE IF NOT EXISTS customer (
+    ->     customer_number INT PRIMARY KEY,
+    ->     customer_name VARCHAR(50),
+    ->     customer_street VARCHAR(100),
+    ->     customer_only VARCHAR(50),
+    ->     contact_no VARCHAR(15)
+    -> );
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> CREATE TABLE IF NOT EXISTS account (
+    ->     account_number INT PRIMARY KEY,
+    ->     branch_name VARCHAR(50),
+    ->     balance DECIMAL(15,2),
+    ->     FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+    -> );
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> CREATE TABLE IF NOT EXISTS loan (
+    ->     loan_number INT PRIMARY KEY,
+    ->     branch_name VARCHAR(50),
+    ->     amount DECIMAL(15,2),
+    ->     FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+    -> );
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> CREATE TABLE IF NOT EXISTS depositor (
+    ->     customer_number INT,
+    ->     account_number INT,
+    ->     PRIMARY KEY (customer_number, account_number),
+    ->     FOREIGN KEY (customer_number) REFERENCES customer(customer_number) ON DELETE CASCADE,
+    ->     FOREIGN KEY (account_number) REFERENCES account(account_number) ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> CREATE TABLE IF NOT EXISTS borrower (
+    ->     customer_number INT,
+    ->     loan_number INT,
+    ->     PRIMARY KEY (customer_number, loan_number),
+    ->     FOREIGN KEY (customer_number) REFERENCES customer(customer_number) ON DELETE CASCADE,
+    ->     FOREIGN KEY (loan_number) REFERENCES loan(loan_number) ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> INSERT INTO branch VALUES
+    -> ('Shivajinagar', 'Pune', 9000000),
+    -> ('Dhankawadi', 'Pune', 7500000),
+    -> ('MumbaiMain', 'Mumbai', 12000000),
+    -> ('Andheri', 'Mumbai', 6000000),
+    -> ('Thane', 'Mumbai', 4000000),
+    -> ('NagpurMain', 'Nagpur', 3500000),
+    -> ('Sitabuldi', 'Nagpur', 2000000),
+    -> ('Wardha', 'Wardha', 1500000),
+    -> ('Amravati', 'Amravati', 2500000),
+    -> ('Needham1', 'Needham', 1000000),
+    -> ('Needham2', 'Needham', 1200000),
+    -> ('NashikMain', 'Nashik', 2700000);
+Query OK, 12 rows affected (0.02 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO customer VALUES
+    -> (1,'Amit Deshmukh','FC Road','Pune','9876543210'),
+    -> (2,'Sneha Kulkarni','JM Road','Pune','9823456789'),
+    -> (3,'Ravi Patil','MG Road','Mumbai','9812345678'),
+    -> (4,'Priya Sharma','Link Road','Mumbai','9123456780'),
+    -> (5,'Arjun Mehta','SV Road','Mumbai','9234567890'),
+    -> (6,'Neha Joshi','Sitabuldi Road','Nagpur','9345678901'),
+    -> (7,'Suresh Charhate','Wardha Road','Nagpur','9456789012'),
+    -> (8,'Kiran Pawar','Railway Colony','Amravati','9567890123'),
+    -> (9,'Rohit Shetty','Shivaji Road','Thane','9678901234'),
+    -> (10,'Pooja Singh','College Road','Nashik','9789012345'),
+    -> (11,'Ankit Jain','Main Street','Needham','9890123456'),
+    -> (12,'Meena Kamat','Market Road','Needham','9001234567');
+Query OK, 12 rows affected (0.02 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO account VALUES
+    -> (101,'Shivajinagar',95000),
+    -> (102,'Dhankawadi',120000),
+    -> (103,'MumbaiMain',87000),
+    -> (104,'Andheri',150000),
+    -> (105,'Thane',99000),
+    -> (106,'NagpurMain',65000),
+    -> (107,'Sitabuldi',72000),
+    -> (108,'Wardha',93000),
+    -> (109,'Amravati',110000),
+    -> (110,'Needham1',97000),
+    -> (111,'Needham2',50000),
+    -> (112,'NashikMain',88000);
+Query OK, 12 rows affected (0.05 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO loan VALUES
+    -> (201,'Shivajinagar',130000),
+    -> (202,'Dhankawadi',95000),
+    -> (203,'MumbaiMain',250000),
+    -> (204,'Andheri',60000),
+    -> (205,'Thane',140000),
+    -> (206,'NagpurMain',40000),
+    -> (207,'Sitabuldi',70000),
+    -> (208,'Wardha',125000),
+    -> (209,'Amravati',30000),
+    -> (210,'Needham1',150000),
+    -> (211,'Needham2',20000),
+    -> (212,'NashikMain',175000);
+Query OK, 12 rows affected (0.05 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO depositor VALUES
+    -> (1,101),(2,102),(3,103),(4,104),(5,105),(6,106),
+    -> (7,107),(8,108),(9,109),(10,110),(11,111),(12,112);
+Query OK, 12 rows affected (0.04 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO borrower VALUES
+    -> (1,201),(2,202),(3,203),(4,204),(5,205),(6,206),
+    -> (7,207),(8,208),(9,209),(10,210),(11,211),(12,212);
+Query OK, 12 rows affected (0.03 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+
+mysql> ALTER TABLE customer ADD CONSTRAINT unique_contact UNIQUE(contact_no);
+Query OK, 0 rows affected (0.17 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE account
+    -> ADD CONSTRAINT fk_account_branch
+    -> FOREIGN KEY (branch_name) REFERENCES branch(branch_name) ON DELETE CASCADE;
+Query OK, 12 rows affected (0.18 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE customer CHANGE customer_only branch_only VARCHAR(50);
+Query OK, 0 rows affected (0.05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE account MODIFY balance DECIMAL(18,2);
+Query OK, 12 rows affected (0.15 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> SHOW TABLES;
++----------------+
+| Tables_in_Bank |
++----------------+
+| account        |
+| borrower       |
+| branch         |
+| customer       |
+| depositor      |
+| loan           |
++----------------+
+6 rows in set (0.01 sec)
+
+mysql> SELECT * FROM account;
++----------------+--------------+-----------+
+| account_number | branch_name  | balance   |
++----------------+--------------+-----------+
+|            101 | Shivajinagar |  95000.00 |
+|            102 | Dhankawadi   | 120000.00 |
+|            103 | MumbaiMain   |  87000.00 |
+|            104 | Andheri      | 150000.00 |
+|            105 | Thane        |  99000.00 |
+|            106 | NagpurMain   |  65000.00 |
+|            107 | Sitabuldi    |  72000.00 |
+|            108 | Wardha       |  93000.00 |
+|            109 | Amravati     | 110000.00 |
+|            110 | Needham1     |  97000.00 |
+|            111 | Needham2     |  50000.00 |
+|            112 | NashikMain   |  88000.00 |
++----------------+--------------+-----------+
+12 rows in set (0.00 sec)
+
+mysql> SELECT * FROM borrower ;
++-----------------+-------------+
+| customer_number | loan_number |
++-----------------+-------------+
+|               1 |         201 |
+|               2 |         202 |
+|               3 |         203 |
+|               4 |         204 |
+|               5 |         205 |
+|               6 |         206 |
+|               7 |         207 |
+|               8 |         208 |
+|               9 |         209 |
+|              10 |         210 |
+|              11 |         211 |
+|              12 |         212 |
++-----------------+-------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM branch ;
++--------------+-------------+-------------+
+| branch_name  | branch_city | assets      |
++--------------+-------------+-------------+
+| Amravati     | Amravati    |  2500000.00 |
+| Andheri      | Mumbai      |  6000000.00 |
+| Dhankawadi   | Pune        |  7500000.00 |
+| MumbaiMain   | Mumbai      | 12000000.00 |
+| NagpurMain   | Nagpur      |  3500000.00 |
+| NashikMain   | Nashik      |  2700000.00 |
+| Needham1     | Needham     |  1000000.00 |
+| Needham2     | Needham     |  1200000.00 |
+| Shivajinagar | Pune        |  9000000.00 |
+| Sitabuldi    | Nagpur      |  2000000.00 |
+| Thane        | Mumbai      |  4000000.00 |
+| Wardha       | Wardha      |  1500000.00 |
++--------------+-------------+-------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM customer  ;
++-----------------+-----------------+-----------------+-------------+------------+
+| customer_number | customer_name   | customer_street | branch_only | contact_no |
++-----------------+-----------------+-----------------+-------------+------------+
+|               1 | Amit Deshmukh   | FC Road         | Pune        | 9876543210 |
+|               2 | Sneha Kulkarni  | JM Road         | Pune        | 9823456789 |
+|               3 | Ravi Patil      | MG Road         | Mumbai      | 9812345678 |
+|               4 | Priya Sharma    | Link Road       | Mumbai      | 9123456780 |
+|               5 | Arjun Mehta     | SV Road         | Mumbai      | 9234567890 |
+|               6 | Neha Joshi      | Sitabuldi Road  | Nagpur      | 9345678901 |
+|               7 | Suresh Charhate | Wardha Road     | Nagpur      | 9456789012 |
+|               8 | Kiran Pawar     | Railway Colony  | Amravati    | 9567890123 |
+|               9 | Rohit Shetty    | Shivaji Road    | Thane       | 9678901234 |
+|              10 | Pooja Singh     | College Road    | Nashik      | 9789012345 |
+|              11 | Ankit Jain      | Main Street     | Needham     | 9890123456 |
+|              12 | Meena Kamat     | Market Road     | Needham     | 9001234567 |
++-----------------+-----------------+-----------------+-------------+------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM depositor;
++-----------------+----------------+
+| customer_number | account_number |
++-----------------+----------------+
+|               1 |            101 |
+|               2 |            102 |
+|               3 |            103 |
+|               4 |            104 |
+|               5 |            105 |
+|               6 |            106 |
+|               7 |            107 |
+|               8 |            108 |
+|               9 |            109 |
+|              10 |            110 |
+|              11 |            111 |
+|              12 |            112 |
++-----------------+----------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM loan;
++-------------+--------------+-----------+
+| loan_number | branch_name  | amount    |
++-------------+--------------+-----------+
+|         201 | Shivajinagar | 130000.00 |
+|         202 | Dhankawadi   |  95000.00 |
+|         203 | MumbaiMain   | 250000.00 |
+|         204 | Andheri      |  60000.00 |
+|         205 | Thane        | 140000.00 |
+|         206 | NagpurMain   |  40000.00 |
+|         207 | Sitabuldi    |  70000.00 |
+|         208 | Wardha       | 125000.00 |
+|         209 | Amravati     |  30000.00 |
+|         210 | Needham1     | 150000.00 |
+|         211 | Needham2     |  20000.00 |
+|         212 | NashikMain   | 175000.00 |
++-------------+--------------+-----------+
+12 rows in set (0.00 sec)
+
+mysql> CREATE INDEX idx_loan_amount ON loan(amount);
+Query OK, 0 rows affected (0.11 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_customer_name ON customer(customer_name);
+Query OK, 0 rows affected (0.18 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE OR REPLACE VIEW HighLoans AS
+    -> SELECT loan_number, branch_name, amount
+    -> FROM loan
+    -> WHERE amount > 120000;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE OR REPLACE VIEW CustWithLoanAndAccount AS
+    -> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> JOIN depositor d ON c.customer_number = d.customer_number
+    -> JOIN borrower b ON c.customer_number = b.customer_number;
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE OR REPLACE VIEW AvgBalance AS
+    -> SELECT branch_name, AVG(balance) AS avg_balance
+    -> FROM account
+    -> GROUP BY branch_name;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE OR REPLACE VIEW RoadCustomers AS
+    -> SELECT customer_name, customer_street
+    -> FROM customer
+    -> WHERE customer_street LIKE '%Road%';
+Query OK, 0 rows affected (0.06 sec)
+
+
+mysql> SELECT * FROM HighLoans;
++-------------+--------------+-----------+
+| loan_number | branch_name  | amount    |
++-------------+--------------+-----------+
+|         208 | Wardha       | 125000.00 |
+|         201 | Shivajinagar | 130000.00 |
+|         205 | Thane        | 140000.00 |
+|         210 | Needham1     | 150000.00 |
+|         212 | NashikMain   | 175000.00 |
+|         203 | MumbaiMain   | 250000.00 |
++-------------+--------------+-----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM CustWithLoanAndAccount;
++-----------------+
+| customer_name   |
++-----------------+
+| Amit Deshmukh   |
+| Ankit Jain      |
+| Arjun Mehta     |
+| Kiran Pawar     |
+| Meena Kamat     |
+| Neha Joshi      |
+| Pooja Singh     |
+| Priya Sharma    |
+| Ravi Patil      |
+| Rohit Shetty    |
+| Sneha Kulkarni  |
+| Suresh Charhate |
++-----------------+
+12 rows in set (0.00 sec)
+
+mysql> SELECT * FROM AvgBalance;
++--------------+---------------+
+| branch_name  | avg_balance   |
++--------------+---------------+
+| Amravati     | 110000.000000 |
+| Andheri      | 150000.000000 |
+| Dhankawadi   | 120000.000000 |
+| MumbaiMain   |  87000.000000 |
+| NagpurMain   |  65000.000000 |
+| NashikMain   |  88000.000000 |
+| Needham1     |  97000.000000 |
+| Needham2     |  50000.000000 |
+| Shivajinagar |  95000.000000 |
+| Sitabuldi    |  72000.000000 |
+| Thane        |  99000.000000 |
+| Wardha       |  93000.000000 |
++--------------+---------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM RoadCustomers;
++-----------------+-----------------+
+| customer_name   | customer_street |
++-----------------+-----------------+
+| Amit Deshmukh   | FC Road         |
+| Sneha Kulkarni  | JM Road         |
+| Ravi Patil      | MG Road         |
+| Priya Sharma    | Link Road       |
+| Arjun Mehta     | SV Road         |
+| Neha Joshi      | Sitabuldi Road  |
+| Suresh Charhate | Wardha Road     |
+| Rohit Shetty    | Shivaji Road    |
+| Pooja Singh     | College Road    |
+| Meena Kamat     | Market Road     |
++-----------------+-----------------+
+10 rows in set (0.00 sec)
+
+1.Find all loans of over 120000.
+
+mysql> SELECT * FROM loan WHERE amount > 120000;
++-------------+--------------+-----------+
+| loan_number | branch_name  | amount    |
++-------------+--------------+-----------+
+|         208 | Wardha       | 125000.00 |
+|         201 | Shivajinagar | 130000.00 |
+|         205 | Thane        | 140000.00 |
+|         210 | Needham1     | 150000.00 |
+|         212 | NashikMain   | 175000.00 |
+|         203 | MumbaiMain   | 250000.00 |
++-------------+--------------+-----------+
+6 rows in set (0.00 sec)
+
+3.Find the loan number for each loan of an amount greater than 12000
+
+mysql> SELECT loan_number FROM loan WHERE amount > 12000;
++-------------+
+| loan_number |
++-------------+
+|         211 |
+|         209 |
+|         206 |
+|         204 |
+|         207 |
+|         202 |
+|         208 |
+|         201 |
+|         205 |
+|         210 |
+|         212 |
+|         203 |
++-------------+
+12 rows in set (0.00 sec)
+
+4.Find the names of all customers who have a loan, an account, or both, from the bank
+
+mysql> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> LEFT JOIN depositor d ON c.customer_number = d.customer_number
+    -> LEFT JOIN borrower b ON c.customer_number = b.customer_number
+    -> WHERE d.account_number IS NOT NULL OR b.loan_number IS NOT NULL;
++-----------------+
+| customer_name   |
++-----------------+
+| Amit Deshmukh   |
+| Ankit Jain      |
+| Arjun Mehta     |
+| Kiran Pawar     |
+| Meena Kamat     |
+| Neha Joshi      |
+| Pooja Singh     |
+| Priya Sharma    |
+| Ravi Patil      |
+| Rohit Shetty    |
+| Sneha Kulkarni  |
+| Suresh Charhate |
++-----------------+
+12 rows in set (0.00 sec)
+
+5.Find the names of all customers who have a loan at the Shivajinagar branch.
+
+mysql> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> JOIN borrower b ON c.customer_number = b.customer_number
+    -> JOIN loan l ON b.loan_number = l.loan_number
+    -> WHERE l.branch_name = 'Shivajinagar';
++---------------+
+| customer_name |
++---------------+
+| Amit Deshmukh |
++---------------+
+1 row in set (0.00 sec)
+
+6. Delete all account records in the Shivajinagar branch.
+
+mysql> DELETE FROM depositor 
+    -> WHERE account_number IN (SELECT account_number FROM account WHERE branch_name='Shivajinagar');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> DELETE FROM account WHERE branch_name='Shivajinagar';
+Query OK, 1 row affected (0.02 sec)
+
+7.Delete all loan records with amount in the range of 0 to 50 loan
+
+mysql> DELETE FROM loan WHERE amount BETWEEN 0 AND 50;
+Query OK, 0 rows affected (0.00 sec)
+
+8.Delete all accounts at branches located in Needham.
+
+mysql> DELETE FROM depositor 
+    -> WHERE account_number IN (SELECT account_number FROM account WHERE branch_name LIKE 'Needham%');
+Query OK, 2 rows affected (0.05 sec)
+
+ 
+mysql> DELETE FROM account WHERE branch_name LIKE 'Needham%';
+Query OK, 2 rows affected (0.02 sec)
+
+9.Find the name, loan number and loan amount of all customers having a loan at the Mumbai branch
+
+mysql> SELECT c.customer_name, l.loan_number, l.amount
+    -> FROM customer c
+    -> JOIN borrower b ON c.customer_number = b.customer_number
+    -> JOIN loan l ON b.loan_number = l.loan_number
+    -> WHERE l.branch_name LIKE 'Mumbai%';
++---------------+-------------+-----------+
+| customer_name | loan_number | amount    |
++---------------+-------------+-----------+
+| Ravi Patil    |         203 | 250000.00 |
++---------------+-------------+-----------+
+1 row in set (0.00 sec)
+
+10.Find the names of all customers whose street includes the substring “Road”.
+
+mysql> SELECT customer_name FROM customer WHERE customer_street LIKE '%Road%';
++-----------------+
+| customer_name   |
++-----------------+
+| Amit Deshmukh   |
+| Sneha Kulkarni  |
+| Ravi Patil      |
+| Priya Sharma    |
+| Arjun Mehta     |
+| Neha Joshi      |
+| Suresh Charhate |
+| Rohit Shetty    |
+| Pooja Singh     |
+| Meena Kamat     |
++-----------------+
+10 rows in set (0.00 sec)
+
+10.List in alphabetic order the names of all customers having a loan in
+Dhankawadi branch
+
+mysql> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> JOIN borrower b ON c.customer_number = b.customer_number
+    -> JOIN loan l ON b.loan_number = l.loan_number
+    -> WHERE l.branch_name='Dhankawadi'
+    -> ORDER BY c.customer_name ASC;
++----------------+
+| customer_name  |
++----------------+
+| Sneha Kulkarni |
++----------------+
+1 row in set (0.00 sec)
+
+11.Find the average account balance at the ‘Shivajinagar’ branch
+
+mysql> SELECT AVG(balance) AS avg_balance FROM account WHERE branch_name='Shivajinagar';
++-------------+
+| avg_balance |
++-------------+
+|        NULL |
++-------------+
+1 row in set (0.00 sec)
+
+12.Find all customers who have both an account and a loan at the bank.
+
+mysql> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> JOIN depositor d ON c.customer_number = d.customer_number
+    -> JOIN borrower b ON c.customer_number = b.customer_number;
++-----------------+
+| customer_name   |
++-----------------+
+| Sneha Kulkarni  |
+| Ravi Patil      |
+| Priya Sharma    |
+| Arjun Mehta     |
+| Neha Joshi      |
+| Suresh Charhate |
+| Kiran Pawar     |
+| Rohit Shetty    |
+| Meena Kamat     |
++-----------------+
+9 rows in set (0.00 sec)
+
+13.Find the account number of those depositors with deposit amounts between 90,000 and 100,000
+
+mysql> SELECT account_number FROM account WHERE balance BETWEEN 90000 AND 100000;
++----------------+
+| account_number |
++----------------+
+|            105 |
+|            108 |
++----------------+
+2 rows in set (0.00 sec)
+
+14.Find the names of all customers who have both a loan and account in
+branch.
+
+mysql> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> JOIN depositor d ON c.customer_number = d.customer_number
+    -> JOIN account a ON d.account_number = a.account_number
+    -> JOIN borrower b ON c.customer_number = b.customer_number
+    -> JOIN loan l ON b.loan_number = l.loan_number
+    -> WHERE a.branch_name = l.branch_name;
++-----------------+
+| customer_name   |
++-----------------+
+| Sneha Kulkarni  |
+| Ravi Patil      |
+| Priya Sharma    |
+| Arjun Mehta     |
+| Neha Joshi      |
+| Suresh Charhate |
+| Kiran Pawar     |
+| Rohit Shetty    |
+| Meena Kamat     |
++-----------------+
+9 rows in set (0.01 sec)
+
+mysql> ALTER TABLE branch RENAME TO branch_new;
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> DROP INDEX idx_loan_amount ON loan;
+Query OK, 0 rows affected (0.05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DROP VIEW IF EXISTS HighLoans;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> ALTER TABLE account MODIFY balance DECIMAL(18,2) DEFAULT 0;
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+mysql> show tables;
++------------------------+
+| Tables_in_Bank         |
++------------------------+
+| AvgBalance             |
+| CustWithLoanAndAccount |
+| RoadCustomers          |
+| account                |
+| borrower               |
+| branch_new             |
+| customer               |
+| depositor              |
+| loan                   |
++------------------------+
+9 rows in set (0.00 sec)
+
+mysql> DESCRIBE branch_new;
++-------------+---------------+------+-----+---------+-------+
+| Field       | Type          | Null | Key | Default | Extra |
++-------------+---------------+------+-----+---------+-------+
+| branch_name | varchar(50)   | NO   | PRI | NULL    |       |
+| branch_city | varchar(50)   | YES  |     | NULL    |       |
+| assets      | decimal(15,2) | YES  |     | NULL    |       |
++-------------+---------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> DESCRIBE account;
++----------------+---------------+------+-----+---------+-------+
+| Field          | Type          | Null | Key | Default | Extra |
++----------------+---------------+------+-----+---------+-------+
+| account_number | int           | NO   | PRI | NULL    |       |
+| branch_name    | varchar(50)   | YES  | MUL | NULL    |       |
+| balance        | decimal(18,2) | YES  |     | 0.00    |       |
++----------------+---------------+------+-----+---------+-------+
+3 rows in set (0.01 sec)
+
+mysql> DESCRIBE loan;
++-------------+---------------+------+-----+---------+-------+
+| Field       | Type          | Null | Key | Default | Extra |
++-------------+---------------+------+-----+---------+-------+
+| loan_number | int           | NO   | PRI | NULL    |       |
+| branch_name | varchar(50)   | YES  | MUL | NULL    |       |
+| amount      | decimal(15,2) | YES  |     | NULL    |       |
++-------------+---------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> DESCRIBE  borrower;
++-----------------+------+------+-----+---------+-------+
+| Field           | Type | Null | Key | Default | Extra |
++-----------------+------+------+-----+---------+-------+
+| customer_number | int  | NO   | PRI | NULL    |       |
+| loan_number     | int  | NO   | PRI | NULL    |       |
++-----------------+------+------+-----+---------+-------+
+2 rows in set (0.01 sec)
+
+mysql> DESCRIBE   customer;
++-----------------+--------------+------+-----+---------+-------+
+| Field           | Type         | Null | Key | Default | Extra |
++-----------------+--------------+------+-----+---------+-------+
+| customer_number | int          | NO   | PRI | NULL    |       |
+| customer_name   | varchar(50)  | YES  | MUL | NULL    |       |
+| customer_street | varchar(100) | YES  |     | NULL    |       |
+| branch_only     | varchar(50)  | YES  |     | NULL    |       |
+| contact_no      | varchar(15)  | YES  | UNI | NULL    |       |
++-----------------+--------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> DESCRIBE  depositor;
++-----------------+------+------+-----+---------+-------+
+| Field           | Type | Null | Key | Default | Extra |
++-----------------+------+------+-----+---------+-------+
+| customer_number | int  | NO   | PRI | NULL    |       |
+| account_number  | int  | NO   | PRI | NULL    |       |
++-----------------+------+------+-----+---------+-------+
+2 rows in set (0.01 sec)
+
+
+mysql> SELECT * FROM branch_new;
++--------------+-------------+-------------+
+| branch_name  | branch_city | assets      |
++--------------+-------------+-------------+
+| Amravati     | Amravati    |  2500000.00 |
+| Andheri      | Mumbai      |  6000000.00 |
+| Dhankawadi   | Pune        |  7500000.00 |
+| MumbaiMain   | Mumbai      | 12000000.00 |
+| NagpurMain   | Nagpur      |  3500000.00 |
+| NashikMain   | Nashik      |  2700000.00 |
+| Needham1     | Needham     |  1000000.00 |
+| Needham2     | Needham     |  1200000.00 |
+| Shivajinagar | Pune        |  9000000.00 |
+| Sitabuldi    | Nagpur      |  2000000.00 |
+| Thane        | Mumbai      |  4000000.00 |
+| Wardha       | Wardha      |  1500000.00 |
++--------------+-------------+-------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM loan;
++-------------+--------------+-----------+
+| loan_number | branch_name  | amount    |
++-------------+--------------+-----------+
+|         201 | Shivajinagar | 130000.00 |
+|         202 | Dhankawadi   |  95000.00 |
+|         203 | MumbaiMain   | 250000.00 |
+|         204 | Andheri      |  60000.00 |
+|         205 | Thane        | 140000.00 |
+|         206 | NagpurMain   |  40000.00 |
+|         207 | Sitabuldi    |  70000.00 |
+|         208 | Wardha       | 125000.00 |
+|         209 | Amravati     |  30000.00 |
+|         210 | Needham1     | 150000.00 |
+|         211 | Needham2     |  20000.00 |
+|         212 | NashikMain   | 175000.00 |
++-------------+--------------+-----------+
+12 rows in set (0.00 sec)
+
+mysql> SELECT * FROM customer;
++-----------------+-----------------+-----------------+-------------+------------+
+| customer_number | customer_name   | customer_street | branch_only | contact_no |
++-----------------+-----------------+-----------------+-------------+------------+
+|               1 | Amit Deshmukh   | FC Road         | Pune        | 9876543210 |
+|               2 | Sneha Kulkarni  | JM Road         | Pune        | 9823456789 |
+|               3 | Ravi Patil      | MG Road         | Mumbai      | 9812345678 |
+|               4 | Priya Sharma    | Link Road       | Mumbai      | 9123456780 |
+|               5 | Arjun Mehta     | SV Road         | Mumbai      | 9234567890 |
+|               6 | Neha Joshi      | Sitabuldi Road  | Nagpur      | 9345678901 |
+|               7 | Suresh Charhate | Wardha Road     | Nagpur      | 9456789012 |
+|               8 | Kiran Pawar     | Railway Colony  | Amravati    | 9567890123 |
+|               9 | Rohit Shetty    | Shivaji Road    | Thane       | 9678901234 |
+|              10 | Pooja Singh     | College Road    | Nashik      | 9789012345 |
+|              11 | Ankit Jain      | Main Street     | Needham     | 9890123456 |
+|              12 | Meena Kamat     | Market Road     | Needham     | 9001234567 |
++-----------------+-----------------+-----------------+-------------+------------+
+12 rows in set (0.01 sec)
+
+mysql> SELECT * FROM account;
++----------------+-------------+-----------+
+| account_number | branch_name | balance   |
++----------------+-------------+-----------+
+|            102 | Dhankawadi  | 120000.00 |
+|            103 | MumbaiMain  |  87000.00 |
+|            104 | Andheri     | 150000.00 |
+|            105 | Thane       |  99000.00 |
+|            106 | NagpurMain  |  65000.00 |
+|            107 | Sitabuldi   |  72000.00 |
+|            108 | Wardha      |  93000.00 |
+|            109 | Amravati    | 110000.00 |
+|            112 | NashikMain  |  88000.00 |
++----------------+-------------+-----------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT * FROM depositor;
++-----------------+----------------+
+| customer_number | account_number |
++-----------------+----------------+
+|               2 |            102 |
+|               3 |            103 |
+|               4 |            104 |
+|               5 |            105 |
+|               6 |            106 |
+|               7 |            107 |
+|               8 |            108 |
+|               9 |            109 |
+|              12 |            112 |
++-----------------+----------------+
+9 rows in set (0.01 sec)
+
+mysql> SELECT * FROM borrower;
++-----------------+-------------+
+| customer_number | loan_number |
++-----------------+-------------+
+|               1 |         201 |
+|               2 |         202 |
+|               3 |         203 |
+|               4 |         204 |
+|               5 |         205 |
+|               6 |         206 |
+|               7 |         207 |
+|               8 |         208 |
+|               9 |         209 |
+|              10 |         210 |
+|              11 |         211 |
+|              12 |         212 |
++-----------------+-------------+
+12 rows in set (0.00 sec)
+
+mysql> 
+

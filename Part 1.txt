@@ -1,0 +1,477 @@
+ASSINGMENT 2 A :-
+
+swaraj@swaraj-VirtualBox:~$ sudo mysql -u root -p
+[sudo] password for swaraj: 
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 31
+Server version: 8.4.6-0ubuntu0.25.04.3 (Ubuntu)
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE StudentDB;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> USE StudentDB;
+Database changed
+mysql> -- Students Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Students (
+    ->     rollno INT AUTO_INCREMENT PRIMARY KEY,
+    ->     name VARCHAR(50) NOT NULL,
+    ->     age INT CHECK (age >= 18),
+    ->     course_id INT,
+    ->     city VARCHAR(30) NOT NULL,
+    ->     email VARCHAR(100) UNIQUE
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> -- Courses Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Courses (
+    ->     course_id INT PRIMARY KEY,
+    ->     cname VARCHAR(50) NOT NULL,
+    ->     duration INT
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> -- Marks Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Marks (
+    ->     mark_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     rollno INT,
+    ->     course_id INT,
+    ->     marks INT CHECK (marks BETWEEN 0 AND 100),
+    ->     FOREIGN KEY (rollno) REFERENCES Students(rollno),
+    ->     FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+    -> );
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> -- Courses
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Courses VALUES
+    -> (101, 'BE', 4),
+    -> (102, 'BTech', 4),
+    -> (103, 'BBA', 3),
+    -> (104, 'MBA', 2);
+Query OK, 4 rows affected (0.09 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Students
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Students (name, age, course_id, city, email) VALUES
+    -> ('Swaraj Gondchawar', 22, 101, 'Pune', 'swaraj@mail.com'),
+    -> ('Mayur Shinde', 23, 102, 'Nagpur', 'mayur@mail.com'),
+    -> ('Sainath Kalyankar', 21, 103, 'Aurangabad', 'sainath@mail.com'),
+    -> ('Sameer Khandare', 22, 101, 'Amravati', 'sameer@mail.com'),
+    -> ('Parth Waghire', 24, 102, 'Mumbai', 'parth@mail.com'),
+    -> ('Kanha Baheti', 23, 103, 'Nashik', 'kanha@mail.com'),
+    -> ('Rahul Patil', 22, 104, 'Kolhapur', 'rahul@mail.com'),
+    -> ('Omkar Kulkarni', 25, 101, 'Pune', 'omkar@mail.com');
+Query OK, 8 rows affected (0.05 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Marks
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO Marks (rollno, course_id, marks) VALUES
+    -> (1, 101, 85),
+    -> (2, 102, 67),
+    -> (3, 103, 75),
+    -> (4, 101, 90),
+    -> (5, 102, 80),
+    -> (6, 103, 60),
+    -> (7, 104, 70),
+    -> (8, 101, 95);
+Query OK, 8 rows affected (0.03 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> -- Select all
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students;
++--------+-------------------+------+-----------+------------+------------------+
+| rollno | name              | age  | course_id | city       | email            |
++--------+-------------------+------+-----------+------------+------------------+
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune       | swaraj@mail.com  |
+|      2 | Mayur Shinde      |   23 |       102 | Nagpur     | mayur@mail.com   |
+|      3 | Sainath Kalyankar |   21 |       103 | Aurangabad | sainath@mail.com |
+|      4 | Sameer Khandare   |   22 |       101 | Amravati   | sameer@mail.com  |
+|      5 | Parth Waghire     |   24 |       102 | Mumbai     | parth@mail.com   |
+|      6 | Kanha Baheti      |   23 |       103 | Nashik     | kanha@mail.com   |
+|      7 | Rahul Patil       |   22 |       104 | Kolhapur   | rahul@mail.com   |
+|      8 | Omkar Kulkarni    |   25 |       101 | Pune       | omkar@mail.com   |
++--------+-------------------+------+-----------+------------+------------------+
+8 rows in set (0.00 sec)
+
+mysql> -- Select with WHERE
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT name, city FROM Students WHERE age > 22;
++----------------+--------+
+| name           | city   |
++----------------+--------+
+| Mayur Shinde   | Nagpur |
+| Parth Waghire  | Mumbai |
+| Kanha Baheti   | Nashik |
+| Omkar Kulkarni | Pune   |
++----------------+--------+
+4 rows in set (0.00 sec)
+
+mysql> -- DISTINCT
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT DISTINCT city FROM Students;
++------------+
+| city       |
++------------+
+| Pune       |
+| Nagpur     |
+| Aurangabad |
+| Amravati   |
+| Mumbai     |
+| Nashik     |
+| Kolhapur   |
++------------+
+7 rows in set (0.01 sec)
+
+mysql> -- ORDER BY ASC
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students ORDER BY age ASC;
++--------+-------------------+------+-----------+------------+------------------+
+| rollno | name              | age  | course_id | city       | email            |
++--------+-------------------+------+-----------+------------+------------------+
+|      3 | Sainath Kalyankar |   21 |       103 | Aurangabad | sainath@mail.com |
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune       | swaraj@mail.com  |
+|      4 | Sameer Khandare   |   22 |       101 | Amravati   | sameer@mail.com  |
+|      7 | Rahul Patil       |   22 |       104 | Kolhapur   | rahul@mail.com   |
+|      2 | Mayur Shinde      |   23 |       102 | Nagpur     | mayur@mail.com   |
+|      6 | Kanha Baheti      |   23 |       103 | Nashik     | kanha@mail.com   |
+|      5 | Parth Waghire     |   24 |       102 | Mumbai     | parth@mail.com   |
+|      8 | Omkar Kulkarni    |   25 |       101 | Pune       | omkar@mail.com   |
++--------+-------------------+------+-----------+------------+------------------+
+8 rows in set (0.00 sec)
+
+mysql> -- ORDER BY DESC
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students ORDER BY age DESC;
++--------+-------------------+------+-----------+------------+------------------+
+| rollno | name              | age  | course_id | city       | email            |
++--------+-------------------+------+-----------+------------+------------------+
+|      8 | Omkar Kulkarni    |   25 |       101 | Pune       | omkar@mail.com   |
+|      5 | Parth Waghire     |   24 |       102 | Mumbai     | parth@mail.com   |
+|      2 | Mayur Shinde      |   23 |       102 | Nagpur     | mayur@mail.com   |
+|      6 | Kanha Baheti      |   23 |       103 | Nashik     | kanha@mail.com   |
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune       | swaraj@mail.com  |
+|      4 | Sameer Khandare   |   22 |       101 | Amravati   | sameer@mail.com  |
+|      7 | Rahul Patil       |   22 |       104 | Kolhapur   | rahul@mail.com   |
+|      3 | Sainath Kalyankar |   21 |       103 | Aurangabad | sainath@mail.com |
++--------+-------------------+------+-----------+------------+------------------+
+8 rows in set (0.00 sec)
+
+mysql> -- BETWEEN
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students WHERE age BETWEEN 22 AND 24;
++--------+-------------------+------+-----------+----------+-----------------+
+| rollno | name              | age  | course_id | city     | email           |
++--------+-------------------+------+-----------+----------+-----------------+
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune     | swaraj@mail.com |
+|      2 | Mayur Shinde      |   23 |       102 | Nagpur   | mayur@mail.com  |
+|      4 | Sameer Khandare   |   22 |       101 | Amravati | sameer@mail.com |
+|      5 | Parth Waghire     |   24 |       102 | Mumbai   | parth@mail.com  |
+|      6 | Kanha Baheti      |   23 |       103 | Nashik   | kanha@mail.com  |
+|      7 | Rahul Patil       |   22 |       104 | Kolhapur | rahul@mail.com  |
++--------+-------------------+------+-----------+----------+-----------------+
+6 rows in set (0.00 sec)
+
+mysql> -- IN
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students WHERE city IN ('Pune', 'Nagpur');
++--------+-------------------+------+-----------+--------+-----------------+
+| rollno | name              | age  | course_id | city   | email           |
++--------+-------------------+------+-----------+--------+-----------------+
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune   | swaraj@mail.com |
+|      2 | Mayur Shinde      |   23 |       102 | Nagpur | mayur@mail.com  |
+|      8 | Omkar Kulkarni    |   25 |       101 | Pune   | omkar@mail.com  |
++--------+-------------------+------+-----------+--------+-----------------+
+3 rows in set (0.00 sec)
+
+mysql> -- LIKE
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students WHERE name LIKE 'S%';
++--------+-------------------+------+-----------+------------+------------------+
+| rollno | name              | age  | course_id | city       | email            |
++--------+-------------------+------+-----------+------------+------------------+
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune       | swaraj@mail.com  |
+|      3 | Sainath Kalyankar |   21 |       103 | Aurangabad | sainath@mail.com |
+|      4 | Sameer Khandare   |   22 |       101 | Amravati   | sameer@mail.com  |
++--------+-------------------+------+-----------+------------+------------------+
+3 rows in set (0.00 sec)
+
+mysql> -- NOT
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Students WHERE NOT city = 'Nagpur';
++--------+-------------------+------+-----------+------------+------------------+
+| rollno | name              | age  | course_id | city       | email            |
++--------+-------------------+------+-----------+------------+------------------+
+|      1 | Swaraj Gondchawar |   22 |       101 | Pune       | swaraj@mail.com  |
+|      3 | Sainath Kalyankar |   21 |       103 | Aurangabad | sainath@mail.com |
+|      4 | Sameer Khandare   |   22 |       101 | Amravati   | sameer@mail.com  |
+|      5 | Parth Waghire     |   24 |       102 | Mumbai     | parth@mail.com   |
+|      6 | Kanha Baheti      |   23 |       103 | Nashik     | kanha@mail.com   |
+|      7 | Rahul Patil       |   22 |       104 | Kolhapur   | rahul@mail.com   |
+|      8 | Omkar Kulkarni    |   25 |       101 | Pune       | omkar@mail.com   |
++--------+-------------------+------+-----------+------------+------------------+
+7 rows in set (0.00 sec)
+
+mysql> -- COUNT students
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT COUNT(*) AS total_students FROM Students;
++----------------+
+| total_students |
++----------------+
+|              8 |
++----------------+
+1 row in set (0.00 sec)
+
+mysql> -- MIN and MAX age
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT MIN(age) AS youngest, MAX(age) AS oldest FROM Students;
++----------+--------+
+| youngest | oldest |
++----------+--------+
+|       21 |     25 |
++----------+--------+
+1 row in set (0.00 sec)
+
+mysql> -- AVG marks
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT AVG(marks) AS avg_marks FROM Marks;
++-----------+
+| avg_marks |
++-----------+
+|   77.7500 |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> -- SUM of marks
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT SUM(marks) AS total_marks FROM Marks;
++-------------+
+| total_marks |
++-------------+
+|         622 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> -- GROUP BY (students per course)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT course_id, COUNT(*) AS total FROM Students GROUP BY course_id;
++-----------+-------+
+| course_id | total |
++-----------+-------+
+|       101 |     3 |
+|       102 |     2 |
+|       103 |     2 |
+|       104 |     1 |
++-----------+-------+
+4 rows in set (0.00 sec)
+
+mysql> -- HAVING (only courses with more than 2 students)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT course_id, COUNT(*) AS total 
+    -> FROM Students GROUP BY course_id HAVING COUNT(*) > 2;
++-----------+-------+
+| course_id | total |
++-----------+-------+
+|       101 |     3 |
++-----------+-------+
+1 row in set (0.00 sec)
+
+mysql> -- Find students with marks above average
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT name FROM Students 
+    -> WHERE rollno IN (SELECT rollno FROM Marks WHERE marks > (SELECT AVG(marks) FROM Marks));
++-------------------+
+| name              |
++-------------------+
+| Swaraj Gondchawar |
+| Sameer Khandare   |
+| Parth Waghire     |
+| Omkar Kulkarni    |
++-------------------+
+4 rows in set (0.00 sec)
+
+mysql> -- Students enrolled in course 'BE'
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT name FROM Students 
+    -> WHERE course_id = (SELECT course_id FROM Courses WHERE cname = 'BE');
++-------------------+
+| name              |
++-------------------+
+| Swaraj Gondchawar |
+| Sameer Khandare   |
+| Omkar Kulkarni    |
++-------------------+
+3 rows in set (0.00 sec)
+
+mysql> -- Update single column
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE Students SET city = 'Delhi' WHERE name = 'Mayur Shinde';
+Query OK, 1 row affected (0.05 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> -- Update multiple columns
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE Students SET age = 26, course_id = 104 WHERE name = 'Omkar Kulkarni';
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> -- Update using DEFAULT
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE Students SET course_id = (SELECT course_id FROM Courses WHERE cname='BE') WHERE name = 'Rahul Patil';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> DELETE FROM Marks WHERE marks < 60;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELETE FROM Students WHERE city = 'Delhi';
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`StudentDB`.`Marks`, CONSTRAINT `Marks_ibfk_1` FOREIGN KEY (`rollno`) REFERENCES `Students` (`rollno`))
+mysql> DELETE FROM Marks WHERE rollno IN (SELECT rollno FROM Students WHERE city = 'Delhi');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> DELETE FROM Students WHERE city = 'Delhi';
+Query OK, 1 row affected (0.04 sec)
+
+mysql> -- UNION
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT name, city FROM Students WHERE city = 'Pune'
+    -> UNION
+    -> SELECT name, city FROM Students WHERE city = 'Mumbai';
++-------------------+--------+
+| name              | city   |
++-------------------+--------+
+| Swaraj Gondchawar | Pune   |
+| Omkar Kulkarni    | Pune   |
+| Parth Waghire     | Mumbai |
++-------------------+--------+
+3 rows in set (0.00 sec)
+
+mysql> -- INTERSECT (simulate with IN)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT name, city FROM Students 
+    -> WHERE city = 'Pune' 
+    -> AND name IN (SELECT name FROM Students WHERE city = 'Mumbai');
+Empty set (0.01 sec)
+
+mysql> -- MINUS (simulate with NOT IN)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT name, city FROM Students 
+    -> WHERE city = 'Pune' 
+    -> AND name NOT IN (SELECT name FROM Students WHERE city = 'Mumbai');
++-------------------+------+
+| name              | city |
++-------------------+------+
+| Swaraj Gondchawar | Pune |
+| Omkar Kulkarni    | Pune |
++-------------------+------+
+2 rows in set (0.01 sec)
+
+mysql> -- Alter table add column
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER TABLE Students ADD phone VARCHAR(15);
+Query OK, 0 rows affected (0.04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Modify column
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER TABLE Students MODIFY email VARCHAR(150) NOT NULL;
+Query OK, 0 rows affected (0.15 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Rename column
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER TABLE Students CHANGE city hometown VARCHAR(30);
+Query OK, 0 rows affected (0.11 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Create Index
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE INDEX idx_city ON Students(hometown);
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> -- Create View
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE VIEW PuneStudents AS
+    -> SELECT rollno, name FROM Students WHERE hometown = 'Pune';
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> TRUNCATE TABLE Marks;
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> DROP VIEW PuneStudents;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> ALTER TABLE Students DROP INDEX idx_city;
+Query OK, 0 rows affected (0.05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DROP TABLE Marks;
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> DROP TABLE Courses;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> DROP TABLE Students;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> DROP DATABASE StudentDB;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> 
+
+

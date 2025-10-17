@@ -1,0 +1,127 @@
+mysql> create database STUD;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> use STUD;
+Database changed
+
+mysql> CREATE TABLE O_RollCall (
+    ->     rollno INT PRIMARY KEY,
+    ->     name   VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> CREATE TABLE N_RollCall (
+    ->     rollno INT PRIMARY KEY,
+    ->     name   VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.22 sec)
+
+mysql> INSERT INTO O_RollCall VALUES (1, 'Rahul');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO O_RollCall VALUES (2, 'Sneha');
+Query OK, 1 row affected (0.06 sec)
+
+mysql> INSERT INTO N_RollCall VALUES (2, 'Sneha');   -- duplicate
+Query OK, 1 row affected (0.08 sec)
+
+mysql> INSERT INTO N_RollCall VALUES (3, 'Amit');    -- new
+Query OK, 1 row affected (0.07 sec)
+
+mysql> INSERT INTO N_RollCall VALUES (4, 'Priya');   -- new
+Query OK, 1 row affected (0.10 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE MergeAllRollCall()
+    -> BEGIN
+    ->     DECLARE done INT DEFAULT 0;
+    ->     DECLARE v_rollno INT;
+    ->     DECLARE v_name VARCHAR(50);
+    ->     DECLARE cur1 CURSOR FOR SELECT rollno, name FROM N_RollCall;
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->     OPEN cur1;
+    ->     read_loop: LOOP
+    ->         FETCH cur1 INTO v_rollno, v_name;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->         IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE rollno = v_rollno) THEN
+    ->             INSERT INTO O_RollCall (rollno, name) VALUES (v_rollno, v_name);
+    ->         END IF;
+    ->     END LOOP;
+    ->     CLOSE cur1;
+    -> END //
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> DELIMITER ;
+mysql> CALL MergeAllRollCall();
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> SELECT * FROM O_RollCall;
++--------+-------+
+| rollno | name  |
++--------+-------+
+|      1 | Rahul |
+|      2 | Sneha |
+|      3 | Amit  |
+|      4 | Priya |
++--------+-------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM N_RollCall;
++--------+-------+
+| rollno | name  |
++--------+-------+
+|      2 | Sneha |
+|      3 | Amit  |
+|      4 | Priya |
++--------+-------+
+3 rows in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE MergeOneRoll(IN p_rollno INT)
+    -> BEGIN
+    ->     DECLARE done INT DEFAULT 0;
+    ->     DECLARE v_rollno INT;
+    ->     DECLARE v_name VARCHAR(50);
+    ->     DECLARE cur2 CURSOR FOR SELECT rollno, name FROM N_RollCall WHERE rollno = p_rollno;
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->     OPEN cur2;
+    ->     fetch_loop: LOOP
+    ->         FETCH cur2 INTO v_rollno, v_name;
+    ->         IF done = 1 THEN
+    ->             LEAVE fetch_loop;
+    ->         END IF;
+    ->         IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE rollno = v_rollno) THEN
+    ->             INSERT INTO O_RollCall (rollno, name) VALUES (v_rollno, v_name);
+    ->         END IF;
+    ->     END LOOP;
+    ->     CLOSE cur2;
+    -> END //
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> DELIMITER ;
+mysql> CALL MergeOneRoll(3);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM N_RollCall;
++--------+-------+
+| rollno | name  |
++--------+-------+
+|      2 | Sneha |
+|      3 | Amit  |
+|      4 | Priya |
++--------+-------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM O_RollCall;
++--------+-------+
+| rollno | name  |
++--------+-------+
+|      1 | Rahul |
+|      2 | Sneha |
+|      3 | Amit  |
+|      4 | Priya |
++--------+-------+
+4 rows in set (0.00 sec)
+

@@ -1,0 +1,702 @@
+College Event Management System
+Problem Statement:
+Design an application to manage college events. The system should allow students to register for
+events, manage event schedules, and track participation and certificates.
+Conceptual Design (ER Elements):  Entities: Student, Event, Organizer, Venue, Certificate
+Relationships:
+-> A Student can register for many Events
+-> An Organizer manages multiple Events
+-> An Event is conducted at one Venue
+-> A Certificate is issued to a Student for participating in an Event
+
+
+mysql> create database Events;
+Query OK, 1 row affected (0.08 sec)
+
+mysql> use Events;
+Database changed
+mysql> CREATE TABLE Student ( student_id INT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100) UNIQUE, department VARCHAR(100), year INT );
+Query OK, 0 rows affected (0.21 sec)
+
+mysql> CREATE TABLE Organizer (
+    -> organizer_id INT PRIMARY KEY,
+    -> name VARCHAR(100),
+    -> contact VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> CREATE TABLE Venue (
+    -> venue_id INT PRIMARY KEY,
+    -> venue_name VARCHAR(100),
+    -> location VARCHAR(100),
+    -> capacity INT
+    -> );
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> CREATE TABLE Event (
+    -> event_id INT PRIMARY KEY,
+    -> event_name VARCHAR(100),
+    -> start_date DATE,
+    -> end_date DATE,
+    -> time TIME,
+    -> fee DECIMAL(10, 2),
+    -> venue_id INT,
+    -> organizer_id INT,
+    -> FOREIGN KEY (venue_id) REFERENCES Venue(venue_id),
+    -> FOREIGN KEY (organizer_id) REFERENCES Organizer(organizer_id)
+    -> );
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> CREATE TABLE Registration (
+    -> registration_id INT PRIMARY KEY,
+    -> student_id INT,
+    -> event_id INT,
+    -> registration_date DATE,
+    -> FOREIGN KEY (student_id) REFERENCES Student(student_id),
+    -> 
+    -> FOREIGN KEY (event_id) REFERENCES Event(event_id)
+    -> );
+Query OK, 0 rows affected (0.21 sec)
+
+mysql> CREATE TABLE Certificate (
+    -> certificate_id INT PRIMARY KEY,
+    -> student_id INT,
+    -> event_id INT,
+    -> issue_date DATE,
+    -> FOREIGN KEY (student_id) REFERENCES Student(student_id),
+    -> FOREIGN KEY (event_id) REFERENCES Event(event_id)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> show tables;
++------------------+
+| Tables_in_Events |
++------------------+
+| Certificate      |
+| Event            |
+| Organizer        |
+| Registration     |
+| Student          |
+| Venue            |
++------------------+
+6 rows in set (0.01 sec)
+
+mysql> INSERT INTO Student (student_id, name, email, department, year) VALUES
+    -> (1, 'Alice Johnson', 'alice@gmail.com', 'Computer Science', 2),
+    -> (2, 'Bob Smith', 'bob@gmail.com', 'Electrical Engineering', 3),
+    -> (3, 'Charlie Brown', 'charlie@example.com', 'Mechanical Engineering', 1); 
+Query OK, 3 rows affected (0.08 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Organizer (organizer_id, name, contact) VALUES
+    -> (1, 'John Doe', '123-456-7890'),
+    -> (2, 'Jane Williams', '234-567-8901');
+Query OK, 2 rows affected (0.02 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Venue (venue_id, venue_name, location, capacity) VALUES
+    -> (1, 'Main Auditorium', 'Building A', 300),
+    -> (2, 'Conference Hall', 'Building B', 100);
+Query OK, 2 rows affected (0.06 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Event (event_id, event_name, start_date, end_date, time, fee, venue_id, organizer_id) VALUES
+    -> (1, 'AI Workshop', '2025-08-10', '2025-08-10', '10:00:00', 50.00, 1, 1),
+    -> (2, 'Robotics Seminar', '2025-08-15', '2025-08-15', '14:00:00', 30.00, 2, 2);
+Query OK, 2 rows affected (0.15 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Registration (registration_id, student_id, event_id, registration_date) VALUES
+    -> (1, 1, 1, '2025-07-20'),
+    -> (2, 2, 1, '2025-07-21'),
+    -> (3, 2, 2, '2025-07-22'),
+    -> (4, 3, 2, '2025-07-22');
+Query OK, 4 rows affected (0.04 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Certificate (certificate_id, student_id, event_id, issue_date) VALUES
+    -> (1, 1, 1, '2025-08-11'),
+    -> (2, 2, 1, '2025-08-11'),
+    -> (3, 2, 2, '2025-08-16');
+Query OK, 3 rows affected (0.04 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Event (event_id, event_name, start_date, end_date, time, fee, venue_id, organizer_id) VALUES
+    -> (11, 'Data Analytics Workshop', '2025-09-25', '2025-09-26', '10:00:00', 300.00, 1, 1),
+    -> (12, 'AI in Healthcare Summit', '2025-09-28', '2025-09-28', '11:30:00', 250.00, 2, 2),
+    -> (13, 'Game Dev Meetup', '2025-10-01', '2025-10-01', '14:00:00', 100.00, 1, 3),
+    -> (14, 'Web Dev Bootcamp', '2025-10-03', '2025-10-05', '09:00:00', 180.00, 2, 4),
+    -> (15, 'Tech Startups Expo', '2025-10-10', '2025-10-10', '10:00:00', 0.00, 1, 5);
+Query OK, 5 rows affected (0.03 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Student (student_id, name, email, department, year) VALUES
+    -> 
+    -> (4, 'Divya Sharma', 'divya@gmail.com', 'Information Technology', 3),
+    -> (5, 'Ethan Patel', 'ethan.patel@gmail.com', 'EnTC', 3),
+    -> (6, 'Fatima Khan', 'fatima_khan@outlook.com', 'Civil Engineering', 2),
+    -> (7, 'George Mathew', 'george@yahoo.com', 'Mechanical Engineering', 4),
+    -> (8, 'Hema Rao', 'hema.rao@gmail.com', 'Computer Science', 1),
+    -> (9, 'Iqbal Ahmed', 'iqbal_ahmed@gmail.com', 'Information Technology', 2),
+    -> (10, 'Jaya Nair', 'jaya.nair@gmail.com', 'EnTC', 3);
+Query OK, 7 rows affected (0.19 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Organizer (organizer_id, name, contact) VALUES
+    -> 
+    -> (3, 'Rajesh Kumar', '345-678-9012'),
+    -> (4, 'Sonia Mehta', '456-789-0123'),
+    -> (5, 'Michael Thomas', '567-890-1234'),
+    -> (6, 'Sneha Joshi', '678-901-2345'),
+    -> (7, 'Vikas Sharma', '789-012-3456'),
+    -> (8, 'Amrita Kaur', '890-123-4567'),
+    -> (9, 'Rohan Das', '901-234-5678'),
+    -> (10, 'Leena George', '012-345-6789');
+Query OK, 8 rows affected (0.08 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Venue (venue_id, venue_name, location, capacity) VALUES
+    -> 
+    -> (3, 'Seminar Room 1', 'Building C', 80),
+    -> (4, 'Open Ground', 'Campus North', 500),
+    -> (5, 'Innovation Lab', 'Building D', 60),
+    -> (6, 'Mini Auditorium', 'Building E', 150),
+    -> (7, 'Tech Hall', 'Building F', 120),
+    -> (8, 'Smart Lab', 'Building G', 70),
+    -> (9, 'Student Center', 'Building H', 200),
+    -> (10, 'Engineering Hall', 'Building I', 250);
+Query OK, 8 rows affected (0.03 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Event (event_id, event_name, start_date, end_date, time, fee, venue_id, organizer_id) VALUES
+    -> 
+    -> (3, 'Cloud Computing Bootcamp', '2025-09-01', '2025-09-02', '09:00:00', 150.00, 3, 3),
+    -> (4, 'Smart City Hackathon', '2025-09-10', '2025-09-12', '11:00:00', 200.00, 4, 4),
+    -> (5, 'Python Coding Challenge', '2025-08-25', '2025-08-25', '12:00:00', 20.00, 5, 5),
+    -> (6, 'Cyber Security Talk', '2025-08-18', '2025-08-18', '15:00:00', 40.00, 6, 6),
+    -> (7, 'Machine Learning Basics', '2025-09-05', '2025-09-05', '10:00:00', 60.00, 7, 7),
+    -> (8, 'Women in Tech Panel', '2025-09-08', '2025-09-08', '13:00:00', 0.00, 8, 8),
+    -> (9, 'IoT Workshop', '2025-09-15', '2025-09-16', '09:30:00', 100.00, 9, 9),
+    -> (10, 'Blockchain 101', '2025-09-20', '2025-09-20', '11:00:00', 80.00, 10, 10);
+Query OK, 8 rows affected (0.11 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Registration (registration_id, student_id, event_id, registration_date) VALUES
+    -> 
+    -> (5, 4, 3, '2025-08-15'),
+    -> (6, 5, 4, '2025-08-20'),
+    -> (7, 1, 5, '2025-08-18'),
+    -> (8, 6, 6, '2025-08-15'),
+    -> (9, 7, 7, '2025-09-01'),
+    -> (10, 8, 8, '2025-09-05');
+Query OK, 6 rows affected (0.05 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Certificate (certificate_id, student_id, event_id, issue_date) VALUES
+    -> 
+    -> (4, 4, 3, '2025-09-03'),
+    -> (5, 5, 4, '2025-09-13'),
+    -> (6, 1, 5, '2025-08-26'),
+    -> (7, 6, 6, '2025-08-19'),
+    -> (8, 7, 7, '2025-09-06'),
+    -> (9, 8, 8, '2025-09-09'),
+    -> (10, 3, 2, '2025-08-17');
+Query OK, 7 rows affected (0.08 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Student (student_id, name, email, department, year)
+    -> VALUES (16, 'Test User', 'testuser@example.com', 'IT', 2);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO Registration (registration_id, student_id, event_id, registration_date)
+    -> VALUES
+    -> (16, 16, 1, '2025-07-29'),
+    -> (17, 16, 3, '2025-07-29');
+Query OK, 2 rows affected (0.02 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Student (student_id, name, email, department, year) VALUES
+    -> (11, 'Ananya Sharma', 'ananya.sharma@gmail.com', 'Information Technology', 3),
+    -> (12, 'Rahul Deshmukh', 'rahul_d@entc.ac.in', 'EnTC', 2),
+    -> (13, 'Sneha Patil', 'sneha.p@gmail.com', 'Computer Science', 1),
+    -> (14, 'Aarav Mehta', 'aarav.m@mech.edu', 'Mechanical Engineering', 4),
+    -> (15, 'Priya Nair', 'priya.nair@gmail.com', 'Computer Science', 3);
+Query OK, 5 rows affected (0.08 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Registration (registration_id, student_id, event_id, registration_date) VALUES
+    -> (11, 11, 1, '2025-07-25'),
+    -> (12, 12, 2, '2025-07-26'),
+    -> (13, 13, 1, '2025-07-27'),
+    -> (14, 14, 2, '2025-07-28'),
+    -> (15, 15, 1, '2025-07-28');
+Query OK, 5 rows affected (0.04 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+
+mysql> UPDATE Event SET venue_id = 1 WHERE event_id IN (1, 3, 5, 7);
+Query OK, 3 rows affected (0.09 sec)
+Rows matched: 4  Changed: 3  Warnings: 0
+
+mysql> UPDATE Event SET venue_id = 2 WHERE event_id IN (2, 4, 6, 8);
+Query OK, 3 rows affected (0.10 sec)
+Rows matched: 4  Changed: 3  Warnings: 0
+
+
+mysql> UPDATE Event
+    -> SET fee = 550.00
+    -> WHERE event_id = 9;
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Event
+    -> SET fee = 600.00
+    -> WHERE event_id = 10;
+Query OK, 1 row affected (0.06 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Event
+    -> SET fee = 750.00
+    -> WHERE event_id = 12;
+Query OK, 0 rows affected (0.01 sec)
+Rows matched: 0  Changed: 0  Warnings: 0
+
+mysql> UPDATE Student
+    -> SET department = 'Computer Engineering'
+    -> WHERE department = 'Mechanical Engineering';
+Query OK, 2 rows affected (0.08 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> UPDATE Student SET department = 'Computer Science' WHERE department = 'Computer Engineering';
+Query OK, 2 rows affected (0.08 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> UPDATE Student
+    -> SET email = UPPER(email)
+    -> WHERE student_id IN (1, 3, 5);
+Query OK, 3 rows affected (0.11 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+
+mysql> select * from Student;
++------------+----------------+-------------------------+------------------------+------+
+| student_id | name           | email                   | department             | year |
++------------+----------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson  | alice@gmail.com         | Computer Science       |    2 |
+|          2 | Bob Smith      | bob@gmail.com           | Electrical Engineering |    3 |
+|          3 | Charlie Brown  | charlie@example.com     | Computer Science       |    1 |
+|          4 | Divya Sharma   | divya@gmail.com         | Information Technology |    3 |
+|          5 | Ethan Patel    | ethan.patel@gmail.com   | EnTC                   |    3 |
+|          6 | Fatima Khan    | fatima_khan@outlook.com | Civil Engineering      |    2 |
+|          7 | George Mathew  | george@yahoo.com        | Computer Science       |    4 |
+|          8 | Hema Rao       | hema.rao@gmail.com      | Computer Science       |    1 |
+|          9 | Iqbal Ahmed    | iqbal_ahmed@gmail.com   | Information Technology |    2 |
+|         10 | Jaya Nair      | jaya.nair@gmail.com     | EnTC                   |    3 |
+|         11 | Ananya Sharma  | ananya.sharma@gmail.com | Information Technology |    3 |
+|         12 | Rahul Deshmukh | rahul_d@entc.ac.in      | EnTC                   |    2 |
+|         13 | Sneha Patil    | sneha.p@gmail.com       | Computer Science       |    1 |
+|         14 | Aarav Mehta    | aarav.m@mech.edu        | Mechanical Engineering |    4 |
+|         15 | Priya Nair     | priya.nair@gmail.com    | Computer Science       |    3 |
+|         16 | Test User      | testuser@example.com    | IT                     |    2 |
++------------+----------------+-------------------------+------------------------+------+
+16 rows in set (0.00 sec)
+
+mysql> select * from Organizer;
++--------------+----------------+--------------+
+| organizer_id | name           | contact      |
++--------------+----------------+--------------+
+|            1 | John Doe       | 123-456-7890 |
+|            2 | Jane Williams  | 234-567-8901 |
+|            3 | Rajesh Kumar   | 345-678-9012 |
+|            4 | Sonia Mehta    | 456-789-0123 |
+|            5 | Michael Thomas | 567-890-1234 |
+|            6 | Sneha Joshi    | 678-901-2345 |
+|            7 | Vikas Sharma   | 789-012-3456 |
+|            8 | Amrita Kaur    | 890-123-4567 |
+|            9 | Rohan Das      | 901-234-5678 |
+|           10 | Leena George   | 012-345-6789 |
++--------------+----------------+--------------+
+10 rows in set (0.00 sec)
+
+mysql> select * from Event;
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+|        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 |
+|        4 | Smart City Hackathon     | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 |
+|        5 | Python Coding Challenge  | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 |
+|        6 | Cyber Security Talk      | 2025-08-18 | 2025-08-18 | 15:00:00 |  40.00 |        2 |            6 |
+|        7 | Machine Learning Basics  | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 |
+|        8 | Women in Tech Panel      | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 |
+|        9 | IoT Workshop             | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 |
+|       10 | Blockchain 101           | 2025-09-20 | 2025-09-20 | 11:00:00 | 600.00 |       10 |           10 |
+|       11 | Data Analytics Workshop  | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 |
+|       12 | AI in Healthcare Summit  | 2025-09-28 | 2025-09-28 | 11:30:00 | 250.00 |        2 |            2 |
+|       13 | Game Dev Meetup          | 2025-10-01 | 2025-10-01 | 14:00:00 | 100.00 |        1 |            3 |
+|       14 | Web Dev Bootcamp         | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 |
+|       15 | Tech Startups Expo       | 2025-10-10 | 2025-10-10 | 10:00:00 |   0.00 |        1 |            5 |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+15 rows in set (0.00 sec)
+
+mysql> select * from Venue;
++----------+------------------+--------------+----------+
+| venue_id | venue_name       | location     | capacity |
++----------+------------------+--------------+----------+
+|        1 | Main Auditorium  | Building A   |      300 |
+|        2 | Conference Hall  | Building B   |      100 |
+|        3 | Seminar Room 1   | Building C   |       80 |
+|        4 | Open Ground      | Campus North |      500 |
+|        5 | Innovation Lab   | Building D   |       60 |
+|        6 | Mini Auditorium  | Building E   |      150 |
+|        7 | Tech Hall        | Building F   |      120 |
+|        8 | Smart Lab        | Building G   |       70 |
+|        9 | Student Center   | Building H   |      200 |
+|       10 | Engineering Hall | Building I   |      250 |
++----------+------------------+--------------+----------+
+10 rows in set (0.00 sec)
+
+mysql> select * from Registration;
++-----------------+------------+----------+-------------------+
+| registration_id | student_id | event_id | registration_date |
++-----------------+------------+----------+-------------------+
+|               1 |          1 |        1 | 2025-07-20        |
+|               2 |          2 |        1 | 2025-07-21        |
+|               3 |          2 |        2 | 2025-07-22        |
+|               4 |          3 |        2 | 2025-07-22        |
+|               5 |          4 |        3 | 2025-08-15        |
+|               6 |          5 |        4 | 2025-08-20        |
+|               7 |          1 |        5 | 2025-08-18        |
+|               8 |          6 |        6 | 2025-08-15        |
+|               9 |          7 |        7 | 2025-09-01        |
+|              10 |          8 |        8 | 2025-09-05        |
+|              11 |         11 |        1 | 2025-07-25        |
+|              12 |         12 |        2 | 2025-07-26        |
+|              13 |         13 |        1 | 2025-07-27        |
+|              14 |         14 |        2 | 2025-07-28        |
+|              15 |         15 |        1 | 2025-07-28        |
+|              16 |         16 |        1 | 2025-07-29        |
+|              17 |         16 |        3 | 2025-07-29        |
++-----------------+------------+----------+-------------------+
+17 rows in set (0.00 sec)
+
+mysql> select * from Certificate;
++----------------+------------+----------+------------+
+| certificate_id | student_id | event_id | issue_date |
++----------------+------------+----------+------------+
+|              1 |          1 |        1 | 2025-08-11 |
+|              2 |          2 |        1 | 2025-08-11 |
+|              3 |          2 |        2 | 2025-08-16 |
+|              4 |          4 |        3 | 2025-09-03 |
+|              5 |          5 |        4 | 2025-09-13 |
+|              6 |          1 |        5 | 2025-08-26 |
+|              7 |          6 |        6 | 2025-08-19 |
+|              8 |          7 |        7 | 2025-09-06 |
+|              9 |          8 |        8 | 2025-09-09 |
+|             10 |          3 |        2 | 2025-08-17 |
++----------------+------------+----------+------------+
+10 rows in set (0.00 sec)
+
+1. Add 100/- to all event fees at a specific venue only.
+mysql> UPDATE Event SET fee = fee + 100 WHERE venue_id = 1;
+Query OK, 1 row affected (0.17 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Event SET fee = fee + 100 WHERE venue_id = 2;
+Query OK, 1 row affected (0.10 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+2. List events ordered by fee (lowest first)
+mysql> SELECT * FROM Event
+    -> ORDER BY fee ASC;
++----------+------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name       | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+------------------+------------+------------+----------+--------+----------+--------------+
+|        2 | Robotics Seminar | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|        1 | AI Workshop      | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
++----------+------------------+------------+------------+----------+--------+----------+--------------+
+2 rows in set (0.01 sec)
+
+3. Venues hosting more than 3 events
+SELECT venue_id, COUNT(*) AS event_count 
+FROM Event 
+GROUP BY venue_id 
+HAVING COUNT(*) > 3;
++----------+-----------------+-------------+
+| venue_id | venue_name      | event_count |
++----------+-----------------+-------------+
+|        1 | Main Auditorium |           4 |
+|        2 | Conference Hall |           4 |
++----------+-----------------+-------------+
+2 rows in set (0.00 sec)
+
+4. Find students with Gmail addresses
+mysql> SELECT * FROM Student
+    -> WHERE email LIKE '%@gmail.com';
++------------+---------------+-----------------------+------------------------+------+
+| student_id | name          | email                 | department             | year |
++------------+---------------+-----------------------+------------------------+------+
+|          1 | Alice Johnson | alice@gmail.com       | Computer Science       |    2 |
+|          2 | Bob Smith     | bob@gmail.com         | Electrical Engineering |    3 |
+|          4 | Divya Sharma  | divya@gmail.com       | Information Technology |    3 |
+|          5 | Ethan Patel   | ethan.patel@gmail.com | EnTC                   |    3 |
+|          8 | Hema Rao      | hema.rao@gmail.com    | Computer Science       |    1 |
+|          9 | Iqbal Ahmed   | iqbal_ahmed@gmail.com | Information Technology |    2 |
+|         10 | Jaya Nair     | jaya.nair@gmail.com   | EnTC                   |    3 |
++------------+---------------+-----------------------+------------------------+------+
+7 rows in set (0.00 sec)
+
+5. Departments with more than 2 students
+mysql> SELECT department, COUNT(*) AS total_students FROM Student GROUP BY department HAVING COUNT(*)
+> 2;
++------------------+----------------+
+| department       | total_students |
++------------------+----------------+
+| Computer Science |              4 |
++------------------+----------------+
+1 row in set (0.00 sec)
+
+6. Set all emails to lowercase.
+mysql> UPDATE Student
+    -> SET email = LOWER(email);
+Query OK, 3 rows affected (0.11 sec)
+Rows matched: 10  Changed: 3  Warnings: 0
+
+mysql> select * from Student
+    -> ;
++------------+---------------+-------------------------+------------------------+------+
+| student_id | name          | email                   | department             | year |
++------------+---------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson | alice@gmail.com         | Computer Science       |    2 |
+|          2 | Bob Smith     | bob@gmail.com           | Electrical Engineering |    3 |
+|          3 | Charlie Brown | charlie@example.com     | Computer Science       |    1 |
+|          4 | Divya Sharma  | divya@gmail.com         | Information Technology |    3 |
+|          5 | Ethan Patel   | ethan.patel@gmail.com   | EnTC                   |    3 |
+|          6 | Fatima Khan   | fatima_khan@outlook.com | Civil Engineering      |    2 |
+|          7 | George Mathew | george@yahoo.com        | Computer Science       |    4 |
+|          8 | Hema Rao      | hema.rao@gmail.com      | Computer Science       |    1 |
+|          9 | Iqbal Ahmed   | iqbal_ahmed@gmail.com   | Information Technology |    2 |
+|         10 | Jaya Nair     | jaya.nair@gmail.com     | EnTC                   |    3 |
++------------+---------------+-------------------------+------------------------+------+
+10 rows in set (0.00 sec)
+
+8. Show events with discounted fee (e.g., 10% off)
+mysql> SELECT event_id, event_name, fee, fee * 0.9 AS discounted_fee
+    -> FROM Event;
++----------+--------------------------+--------+----------------+
+| event_id | event_name               | fee    | discounted_fee |
++----------+--------------------------+--------+----------------+
+|        1 | AI Workshop              | 150.00 |        135.000 |
+|        2 | Robotics Seminar         | 130.00 |        117.000 |
+|        3 | Cloud Computing Bootcamp | 150.00 |        135.000 |
+|        4 | Smart City Hackathon     | 200.00 |        180.000 |
+|        5 | Python Coding Challenge  |  20.00 |         18.000 |
+|        6 | Cyber Security Talk      |  40.00 |         36.000 |
+|        7 | Machine Learning Basics  |  60.00 |         54.000 |
+|        8 | Women in Tech Panel      |   0.00 |          0.000 |
+|        9 | IoT Workshop             | 100.00 |         90.000 |
+|       10 | Blockchain 101           |  80.00 |         72.000 |
++----------+--------------------------+--------+----------------+
+10 rows in set (0.00 sec)
+
+9. Events with fee less than 500/-
+mysql> SELECT * FROM Event
+    -> WHERE fee < 500;
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+|        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 |
+|        4 | Smart City Hackathon     | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 |
+|        5 | Python Coding Challenge  | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 |
+|        6 | Cyber Security Talk      | 2025-08-18 | 2025-08-18 | 15:00:00 |  40.00 |        2 |            6 |
+|        7 | Machine Learning Basics  | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 |
+|        8 | Women in Tech Panel      | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+8 rows in set (0.00 sec)
+
+10. Events not organized at a particular venue
+mysql> SELECT * FROM Event 
+    -> WHERE venue_id != 1; 
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name              | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+|        2 | Robotics Seminar        | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|        4 | Smart City Hackathon    | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 |
+|        6 | Cyber Security Talk     | 2025-08-18 | 2025-08-18 | 15:00:00 |  40.00 |        2 |            6 |
+|        8 | Women in Tech Panel     | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 |
+|       12 | AI in Healthcare Summit | 2025-09-28 | 2025-09-28 | 11:30:00 | 250.00 |        2 |            2 |
+|       14 | Web Dev Bootcamp        | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 |
+|        9 | IoT Workshop            | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 |
+|       10 | Blockchain 101          | 2025-09-20 | 2025-09-20 | 11:00:00 | 600.00 |       10 |           10 |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+8 rows in set (0.02 sec)
+
+11. Students from CS, IT, EnTC in 3rd year
+mysql> SELECT * FROM Student
+    -> WHERE department IN ('Computer Science', 'Information Technology', 'EnTC')
+    -> AND year = 3;
++------------+--------------+-----------------------+------------------------+------+
+| student_id | name         | email                 | department             | year |
++------------+--------------+-----------------------+------------------------+------+
+|          4 | Divya Sharma | divya@gmail.com       | Information Technology |    3 |
+|          5 | Ethan Patel  | ethan.patel@gmail.com | EnTC                   |    3 |
+|         10 | Jaya Nair    | jaya.nair@gmail.com   | EnTC                   |    3 |
++------------+--------------+-----------------------+------------------------+------+
+3 rows in set (0.00 sec)
+
+12. Students who registered but didn’t get certificates
+mysql> SELECT DISTINCT s.student_id, s.name  FROM Student s JOIN Registration r ON s.student_id = r.student_id LEFT JOIN Certificate c  ON r.student_id = c.student_id AND r.event_id = c.event_id WHERE c.certificate_id IS NULL;
++------------+----------------+
+| student_id | name           |
++------------+----------------+
+|         11 | Ananya Sharma  |
+|         12 | Rahul Deshmukh |
+|         13 | Sneha Patil    |
+|         14 | Aarav Mehta    |
+|         15 | Priya Nair     |
++------------+----------------+
+5 rows in set (0.00 sec)
+
+13. Students who registered for event1 and event3 only.
+mysql> SELECT student_id
+    -> FROM Registration
+    -> GROUP BY student_id
+    -> HAVING 
+    -> 	  SUM(event_id = 1) = 1 AND
+    ->    SUM(event_id = 3) = 1 AND
+    ->    COUNT(DISTINCT event_id) = 2;
++------------+
+| student_id |
++------------+
+|         16 |
++------------+
+1 row in set (0.00 sec)
+
+14. Count how many events each student has registered for.
+mysql> SELECT student_id, COUNT(event_id) AS total_events
+    -> FROM Registration
+    -> GROUP BY student_id;
++------------+--------------+
+| student_id | total_events |
++------------+--------------+
+|          1 |            2 |
+|          2 |            2 |
+|          3 |            1 |
+|          4 |            1 |
+|          5 |            1 |
+|          6 |            1 |
+|          7 |            1 |
+|          8 |            1 |
+|         11 |            1 |
+|         12 |            1 |
+|         13 |            1 |
+|         14 |            1 |
+|         15 |            1 |
+|         16 |            2 |
++------------+--------------+
+14 rows in set (0.00 sec)
+
+
+15. Find organizers who manage more than 1 events.
+mysql> SELECT organizer_id, COUNT(*) AS total_events  FROM Event GROUP BY organizer_id HAVING COUNT(*) >= 2;
++--------------+--------------+
+| organizer_id | total_events |
++--------------+--------------+
+|            1 |            2 |
+|            2 |            2 |
+|            3 |            2 |
+|            4 |            2 |
+|            5 |            2 |
++--------------+--------------+
+5 rows in set (0.01 sec)
+
+16. List events held at venue_id = 1 after a certain date, ordered by date.
+mysql> SELECT * FROM Event  WHERE venue_id = 1    AND start_date > '2025-08-01'  ORDER BY start_date ASC;
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+|        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|        5 | Python Coding Challenge  | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 |
+|        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 |
+|        7 | Machine Learning Basics  | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 |
+|       11 | Data Analytics Workshop  | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 |
+|       13 | Game Dev Meetup          | 2025-10-01 | 2025-10-01 | 14:00:00 | 100.00 |        1 |            3 |
+|       15 | Tech Startups Expo       | 2025-10-10 | 2025-10-10 | 10:00:00 |   0.00 |        1 |            5 |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+7 rows in set (0.00 sec)
+
+17. List of students who received certificates for specific event.
+mysql> SELECT s.student_id, s.name  FROM Student s JOIN Certificate c ON s.student_id = c.student_id WHERE c.event_id = 1;
++------------+---------------+
+| student_id | name          |
++------------+---------------+
+|          1 | Alice Johnson |
+|          2 | Bob Smith     |
++------------+---------------+
+2 rows in set (0.00 sec)
+
+18. Find all the students whose names starts with ‘A’
+mysql> SELECT * FROM Student 
+    -> WHERE name LIKE 'A%';
++------------+---------------+-------------------------+------------------------+------+
+| student_id | name          | email                   | department             | year |
++------------+---------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson | alice@gmail.com         | Computer Science       |    2 |
+|         11 | Ananya Sharma | ananya.sharma@gmail.com | Information Technology |    3 |
+|         14 | Aarav Mehta   | aarav.m@mech.edu        | Mechanical Engineering |    4 |
++------------+---------------+-------------------------+------------------------+------+
+3 rows in set (0.01 sec)
+
+19. Find events occurring after certain date
+mysql> SELECT * FROM Event
+    -> WHERE start_date > '2025-09-01';
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name              | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+|        4 | Smart City Hackathon    | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 |
+|        7 | Machine Learning Basics | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 |
+|        8 | Women in Tech Panel     | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 |
+|        9 | IoT Workshop            | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 |
+|       10 | Blockchain 101          | 2025-09-20 | 2025-09-20 | 11:00:00 | 600.00 |       10 |           10 |
+|       11 | Data Analytics Workshop | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 |
+|       12 | AI in Healthcare Summit | 2025-09-28 | 2025-09-28 | 11:30:00 | 250.00 |        2 |            2 |
+|       13 | Game Dev Meetup         | 2025-10-01 | 2025-10-01 | 14:00:00 | 100.00 |        1 |            3 |
+|       14 | Web Dev Bootcamp        | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 |
+|       15 | Tech Startups Expo      | 2025-10-10 | 2025-10-10 | 10:00:00 |   0.00 |        1 |            5 |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+10 rows in set (0.00 sec)
+
+20. List events organized by specific organizer_id and happening in August 2025
+mysql> SELECT * FROM Event
+    -> WHERE organizer_id = 2
+    -> AND MONTH(start_date) = 8
+    -> AND YEAR(start_date) = 2025;
++----------+------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name       | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+------------------+------------+------------+----------+--------+----------+--------------+
+|        2 | Robotics Seminar | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
++----------+------------------+------------+------------+----------+--------+----------+--------------+
+1 row in set (0.01 sec)
+
+21. List all events except one day events.
+mysql> SELECT * FROM Event 
+    -> WHERE start_date != end_date;
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+|        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 |
+|        4 | Smart City Hackathon     | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 |
+|        9 | IoT Workshop             | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 |
+|       11 | Data Analytics Workshop  | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 |
+|       14 | Web Dev Bootcamp         | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+5 rows in set (0.00 sec)
+
+7. Delete all registrations of a canceled event.
+mysql> DELETE FROM Registration 
+    -> WHERE event_id = 10; 
+Query OK, 0 rows affected (0.01 sec)
+

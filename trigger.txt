@@ -1,0 +1,268 @@
+mysql> drop database Lib1;
+Query OK, 2 rows affected (0.13 sec)
+
+mysql> create database Lib1;
+Query OK, 1 row affected (0.14 sec)
+
+mysql> use Lib1;
+Database changed
+
+mysql> CREATE TABLE Library (
+    ->     memno      INT,
+    ->     bookno     INT,
+    ->     bookname   VARCHAR(100),
+    ->     doi        DATE,
+    ->     status     CHAR(1) CHECK (status IN ('I','R')),
+    ->     PRIMARY KEY (memno, bookno)
+    -> );
+Query OK, 0 rows affected (0.19 sec)
+
+mysql> CREATE TABLE Library_Audit (
+    ->     memno      INT,
+    ->     bookno     INT,
+    ->     bookname   VARCHAR(100),
+    ->     doi        DATE,
+    ->     dor        DATE,
+    ->     fine       DECIMAL(8,2),
+    ->     operation  VARCHAR(10)
+    -> );
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> INSERT INTO Library VALUES (101, 1001, 'Database Systems', DATE '2025-09-01', 'I');
+Query OK, 1 row affected (0.06 sec)
+
+mysql> INSERT INTO Library VALUES (102, 1002, 'Operating Systems', DATE '2025-08-28', 'I');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> INSERT INTO Library VALUES (103, 1003, 'Computer Networks', DATE '2025-08-25', 'I');
+Query OK, 1 row affected (0.05 sec)
+
+mysql> INSERT INTO Library VALUES (104, 1004, 'Data Structures', DATE '2025-09-03', 'I');
+Query OK, 1 row affected (0.06 sec)
+
+mysql> INSERT INTO Library VALUES (105, 1005, 'Software Engineering', DATE '2025-09-05', 'I');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO Library VALUES (106, 1006, 'Artificial Intelligence', DATE '2025-09-02', 'I');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> INSERT INTO Library VALUES (107, 1007, 'Computer Graphics', DATE '2025-08-30', 'I');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER trg_insert_library
+    -> BEFORE INSERT ON Library
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.doi > CURDATE() THEN
+    ->         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Date greater than current date!!';
+    ->     ELSEIF NEW.status <> 'I' THEN
+    ->         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid status!!';
+    ->     END IF;
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> DELIMITER ;
+mysql> DELIMITER //
+mysql> CREATE TRIGGER trg_delete_library
+    -> AFTER DELETE ON Library
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE vdays INT;
+    ->     DECLARE vfine INT;
+    ->     SET vdays = DATEDIFF(CURDATE(), OLD.doi);
+    ->     IF vdays > 15 THEN
+    ->         SET vfine = (vdays - 15) * 2;
+    ->     ELSE
+    ->         SET vfine = 0;
+    ->     END IF;
+    ->     INSERT INTO Library_Audit(memno, bookno, bookname, doi, dor, fine, operation)
+    ->     VALUES(OLD.memno, OLD.bookno, OLD.bookname, OLD.doi, CURDATE(), vfine, 'Delete');
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> CREATE TRIGGER trg_update_library
+    -> AFTER UPDATE ON Library
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE vdays INT;
+    ->     DECLARE vfine INT;
+    -> 
+    ->     IF OLD.status = 'I' AND NEW.status = 'R' THEN
+    ->         SET vdays = DATEDIFF(CURDATE(), OLD.doi);
+    ->         IF vdays > 15 THEN
+    ->             SET vfine = (vdays - 15) * 2;
+    ->         ELSE
+    ->             SET vfine = 0;
+    ->         END IF;
+    -> 
+    ->         INSERT INTO Library_Audit(memno, bookno, bookname, doi, dor, fine, operation)
+    ->         VALUES(OLD.memno, OLD.bookno, OLD.bookname, OLD.doi, CURDATE(), vfine, 'Update');
+    ->     END IF;
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> DROP TRIGGER IF EXISTS trg_library_audit_delete;
+Query OK, 0 rows affected, 1 warning (0.03 sec)
+
+
+mysql> DROP TRIGGER IF EXISTS trg_delete_library;
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER trg_delete_library
+    -> AFTER DELETE ON Library
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE vdays INT;
+    ->     DECLARE vfine INT;
+    -> 
+    ->     SET vdays = DATEDIFF(CURDATE(), OLD.doi);
+    ->     IF vdays > 15 THEN
+    ->         SET vfine = (vdays - 15) * 2;
+    ->     ELSE
+    ->         SET vfine = 0;
+    ->     END IF;
+    -> 
+    ->     INSERT INTO Library_Audit(memno, bookno, bookname, doi, dor, fine, operation)
+    ->     VALUES(OLD.memno, OLD.bookno, OLD.bookname, OLD.doi, CURDATE(), vfine, 'Delete');
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO Library VALUES (101, 2001, 'DBMS Book', '2025-08-20', 'I');
+Query OK, 1 row affected (0.13 sec)
+
+
+mysql> UPDATE Library SET status='R' WHERE bookno=2001;
+Query OK, 1 row affected (0.15 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> DELETE FROM Library WHERE bookno=2001;
+Query OK, 1 row affected (0.08 sec)
+
+mysql> select * from Library_Audit;
++-------+--------+-----------+------------+------------+-------+-----------+
+| memno | bookno | bookname  | doi        | dor        | fine  | operation |
++-------+--------+-----------+------------+------------+-------+-----------+
+|   101 |   2001 | DBMS Book | 2025-08-20 | 2025-09-10 | 12.00 | Update    |
+|   101 |   2001 | DBMS Book | 2025-08-20 | 2025-09-10 | 12.00 | Delete    |
++-------+--------+-----------+------------+------------+-------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> select * from Library;
++-------+--------+-------------------------+------------+--------+
+| memno | bookno | bookname                | doi        | status |
++-------+--------+-------------------------+------------+--------+
+|   101 |   1001 | Database Systems        | 2025-09-01 | I      |
+|   102 |   1002 | Operating Systems       | 2025-08-28 | I      |
+|   103 |   1003 | Computer Networks       | 2025-08-25 | I      |
+|   104 |   1004 | Data Structures         | 2025-09-03 | I      |
+|   105 |   1005 | Software Engineering    | 2025-09-05 | I      |
+|   106 |   1006 | Artificial Intelligence | 2025-09-02 | I      |
+|   107 |   1007 | Computer Graphics       | 2025-08-30 | I      |
++-------+--------+-------------------------+------------+--------+
+7 rows in set (0.01 sec)
+
+mysql> UPDATE Library SET status='R' WHERE bookno=2001;
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 0  Changed: 0  Warnings: 0
+
+mysql> select * from Library;
++-------+--------+-------------------------+------------+--------+
+| memno | bookno | bookname                | doi        | status |
++-------+--------+-------------------------+------------+--------+
+|   101 |   1001 | Database Systems        | 2025-09-01 | I      |
+|   102 |   1002 | Operating Systems       | 2025-08-28 | I      |
+|   103 |   1003 | Computer Networks       | 2025-08-25 | I      |
+|   104 |   1004 | Data Structures         | 2025-09-03 | I      |
+|   105 |   1005 | Software Engineering    | 2025-09-05 | I      |
+|   106 |   1006 | Artificial Intelligence | 2025-09-02 | I      |
+|   107 |   1007 | Computer Graphics       | 2025-08-30 | I      |
++-------+--------+-------------------------+------------+--------+
+7 rows in set (0.00 sec)
+
+mysql> UPDATE Library SET status='R' WHERE bookno=1001;
+Query OK, 1 row affected (0.10 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from Library;
++-------+--------+-------------------------+------------+--------+
+| memno | bookno | bookname                | doi        | status |
++-------+--------+-------------------------+------------+--------+
+|   101 |   1001 | Database Systems        | 2025-09-01 | R      |
+|   102 |   1002 | Operating Systems       | 2025-08-28 | I      |
+|   103 |   1003 | Computer Networks       | 2025-08-25 | I      |
+|   104 |   1004 | Data Structures         | 2025-09-03 | I      |
+|   105 |   1005 | Software Engineering    | 2025-09-05 | I      |
+|   106 |   1006 | Artificial Intelligence | 2025-09-02 | I      |
+|   107 |   1007 | Computer Graphics       | 2025-08-30 | I      |
++-------+--------+-------------------------+------------+--------+
+7 rows in set (0.00 sec)
+
+mysql> DELETE FROM Library WHERE bookno=2001;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELETE FROM Library WHERE bookno=1004;
+Query OK, 1 row affected (0.12 sec)
+
+mysql> select * from Library;
++-------+--------+-------------------------+------------+--------+
+| memno | bookno | bookname                | doi        | status |
++-------+--------+-------------------------+------------+--------+
+|   101 |   1001 | Database Systems        | 2025-09-01 | R      |
+|   102 |   1002 | Operating Systems       | 2025-08-28 | I      |
+|   103 |   1003 | Computer Networks       | 2025-08-25 | I      |
+|   105 |   1005 | Software Engineering    | 2025-09-05 | I      |
+|   106 |   1006 | Artificial Intelligence | 2025-09-02 | I      |
+|   107 |   1007 | Computer Graphics       | 2025-08-30 | I      |
++-------+--------+-------------------------+------------+--------+
+6 rows in set (0.00 sec)
+
+mysql> select * from Library_Audit;
++-------+--------+------------------+------------+------------+-------+-----------+
+| memno | bookno | bookname         | doi        | dor        | fine  | operation |
++-------+--------+------------------+------------+------------+-------+-----------+
+|   101 |   2001 | DBMS Book        | 2025-08-20 | 2025-09-10 | 12.00 | Update    |
+|   101 |   2001 | DBMS Book        | 2025-08-20 | 2025-09-10 | 12.00 | Delete    |
+|   101 |   1001 | Database Systems | 2025-09-01 | 2025-09-10 |  0.00 | Update    |
+|   104 |   1004 | Data Structures  | 2025-09-03 | 2025-09-10 |  0.00 | Delete    |
++-------+--------+------------------+------------+------------+-------+-----------+
+4 rows in set (0.00 sec)
+
+mysql>  INSERT INTO Library VALUES (109, 1012, 'CN Book', '2025-08-01', 'I');
+Query OK, 1 row affected (0.08 sec)
+
+mysql>  INSERT INTO Library VALUES (121, 1102, 'DSA Book', '2025-07-15', 'I');
+Query OK, 1 row affected (0.13 sec)
+
+mysql> select * from Library_Audit;
++-------+--------+------------------+------------+------------+-------+-----------+
+| memno | bookno | bookname         | doi        | dor        | fine  | operation |
++-------+--------+------------------+------------+------------+-------+-----------+
+|   101 |   2001 | DBMS Book        | 2025-08-20 | 2025-09-10 | 12.00 | Update    |
+|   101 |   2001 | DBMS Book        | 2025-08-20 | 2025-09-10 | 12.00 | Delete    |
+|   101 |   1001 | Database Systems | 2025-09-01 | 2025-09-10 |  0.00 | Update    |
+|   104 |   1004 | Data Structures  | 2025-09-03 | 2025-09-10 |  0.00 | Delete    |
++-------+--------+------------------+------------+------------+-------+-----------+
+4 rows in set (0.01 sec)
+
+mysql> DELETE FROM Library WHERE bookno=1012;
+Query OK, 1 row affected (0.06 sec)
+
+mysql> select * from Library_Audit;
++-------+--------+------------------+------------+------------+-------+-----------+
+| memno | bookno | bookname         | doi        | dor        | fine  | operation |
++-------+--------+------------------+------------+------------+-------+-----------+
+|   101 |   2001 | DBMS Book        | 2025-08-20 | 2025-09-10 | 12.00 | Update    |
+|   101 |   2001 | DBMS Book        | 2025-08-20 | 2025-09-10 | 12.00 | Delete    |
+|   101 |   1001 | Database Systems | 2025-09-01 | 2025-09-10 |  0.00 | Update    |
+|   104 |   1004 | Data Structures  | 2025-09-03 | 2025-09-10 |  0.00 | Delete    |
+|   109 |   1012 | CN Book          | 2025-08-01 | 2025-09-10 | 50.00 | Delete    |
++-------+--------+------------------+------------+------------+-------+-----------+
+5 rows in set (0.00 sec)
+
+

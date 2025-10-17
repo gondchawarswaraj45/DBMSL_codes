@@ -1,0 +1,221 @@
+Assignment Cursor - 2
+
+swaraj@swaraj-VirtualBox:~/DBMSL$ cd
+swaraj@swaraj-VirtualBox:~$ sudo mysql -u root -p
+[sudo] password for swaraj: 
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 28
+Server version: 8.4.6-0ubuntu0.25.04.3 (Ubuntu)
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| Bank               |
+| Events             |
+| Lib                |
+| Lib1               |
+| STUD               |
+| Sales              |
+| Students           |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| testdb             |
++--------------------+
+12 rows in set (0.01 sec)
+
+mysql> Create database CurDB;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> use CurDB;
+Database changed
+mysql> CREATE TABLE Student (
+    ->     student_id INT PRIMARY KEY,
+    ->     name VARCHAR(50),
+    ->     course VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> CREATE TABLE Event (
+    ->     event_id INT PRIMARY KEY,
+    ->     event_name VARCHAR(100),
+    ->     start_date DATE,
+    ->     end_date DATE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE Registration (
+    ->     reg_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     student_id INT,
+    ->     event_id INT,
+    ->     FOREIGN KEY (student_id) REFERENCES Student(student_id),
+    ->     FOREIGN KEY (event_id) REFERENCES Event(event_id)
+    -> );
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> CREATE TABLE Certificate (
+    ->     cert_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     student_id INT,
+    ->     event_id INT,
+    ->     issue_date DATE,
+    ->     FOREIGN KEY (student_id) REFERENCES Student(student_id),
+    ->     FOREIGN KEY (event_id) REFERENCES Event(event_id)
+    -> );
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> show tables;
++-----------------+
+| Tables_in_CurDB |
++-----------------+
+| Certificate     |
+| Event           |
+| Registration    |
+| Student         |
++-----------------+
+4 rows in set (0.01 sec)
+
+mysql> INSERT INTO Student (student_id, name, course) VALUES
+    -> (1, 'Robert Downey Jr.', 'BE'),
+    -> (2, 'Chris Evans', 'BE'),
+    -> (3, 'Scarlett Johansson', 'TE'),
+    -> (4, 'Chris Hemsworth', 'SE'),
+    -> (5, 'Mark Ruffalo', 'BE');
+Query OK, 5 rows affected (0.02 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Event (event_id, event_name, start_date, end_date) VALUES
+    -> (101, 'Infinity War', '2025-07-01', '2025-07-10'),
+    -> (102, 'Endgame', '2025-08-05', '2025-08-15'),
+    -> (103, 'Civil War', '2025-06-01', '2025-06-05'),
+    -> (104, 'Multiverse Madness', '2025-12-01', '2025-12-05');
+Query OK, 4 rows affected (0.02 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Registration (student_id, event_id) VALUES
+    -> (1, 101),
+    -> (2, 101),
+    -> (3, 102),
+    -> (4, 103),
+    -> (5, 102),
+    -> (2, 103),
+    -> (1, 104);
+Query OK, 7 rows affected (0.03 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM Student;
++------------+--------------------+--------+
+| student_id | name               | course |
++------------+--------------------+--------+
+|          1 | Robert Downey Jr.  | BE     |
+|          2 | Chris Evans        | BE     |
+|          3 | Scarlett Johansson | TE     |
+|          4 | Chris Hemsworth    | SE     |
+|          5 | Mark Ruffalo       | BE     |
++------------+--------------------+--------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Event;
++----------+--------------------+------------+------------+
+| event_id | event_name         | start_date | end_date   |
++----------+--------------------+------------+------------+
+|      101 | Infinity War       | 2025-07-01 | 2025-07-10 |
+|      102 | Endgame            | 2025-08-05 | 2025-08-15 |
+|      103 | Civil War          | 2025-06-01 | 2025-06-05 |
+|      104 | Multiverse Madness | 2025-12-01 | 2025-12-05 |
++----------+--------------------+------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Registration;
++--------+------------+----------+
+| reg_id | student_id | event_id |
++--------+------------+----------+
+|      1 |          1 |      101 |
+|      2 |          2 |      101 |
+|      3 |          3 |      102 |
+|      4 |          4 |      103 |
+|      5 |          5 |      102 |
+|      6 |          2 |      103 |
+|      7 |          1 |      104 |
++--------+------------+----------+
+7 rows in set (0.01 sec)
+
+mysql> DELIMITER $$
+mysql> CREATE PROCEDURE GenerateCertificates()
+    -> BEGIN
+    ->     DECLARE v_student_id INT;
+    ->     DECLARE v_event_id INT;
+    ->     DECLARE done INT DEFAULT 0;
+    -> 
+    ->     DECLARE cur CURSOR FOR
+    ->         SELECT r.student_id, r.event_id
+    ->         FROM Registration r
+    ->         JOIN Event e ON r.event_id = e.event_id
+    ->         WHERE e.end_date < CURDATE();
+    -> 
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    -> 
+    ->     OPEN cur;
+    ->     read_loop: LOOP
+    ->         FETCH cur INTO v_student_id, v_event_id;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    -> 
+    ->         IF NOT EXISTS (
+    ->             SELECT 1 FROM Certificate
+    ->             WHERE student_id = v_student_id AND event_id = v_event_id
+    ->         ) THEN
+    ->             INSERT INTO Certificate(student_id, event_id, issue_date)
+    ->             VALUES(v_student_id, v_event_id, CURDATE());
+    ->         END IF;
+    ->     END LOOP;
+    ->     CLOSE cur;
+    -> END$$
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> DELIMITER ;
+
+mysql> CALL GenerateCertificates();
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> SELECT c.cert_id, s.name, e.event_name, c.issue_date
+    -> FROM Certificate c
+    -> JOIN Student s ON c.student_id = s.student_id
+    -> JOIN Event e ON c.event_id = e.event_id;
++---------+--------------------+--------------+------------+
+| cert_id | name               | event_name   | issue_date |
++---------+--------------------+--------------+------------+
+|       1 | Robert Downey Jr.  | Infinity War | 2025-09-30 |
+|       2 | Chris Evans        | Infinity War | 2025-09-30 |
+|       3 | Scarlett Johansson | Endgame      | 2025-09-30 |
+|       4 | Mark Ruffalo       | Endgame      | 2025-09-30 |
+|       5 | Chris Hemsworth    | Civil War    | 2025-09-30 |
+|       6 | Chris Evans        | Civil War    | 2025-09-30 |
++---------+--------------------+--------------+------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Certificate;
++---------+------------+----------+------------+
+| cert_id | student_id | event_id | issue_date |
++---------+------------+----------+------------+
+|       1 |          1 |      101 | 2025-09-30 |
+|       2 |          2 |      101 | 2025-09-30 |
+|       3 |          3 |      102 | 2025-09-30 |
+|       4 |          5 |      102 | 2025-09-30 |
+|       5 |          4 |      103 | 2025-09-30 |
+|       6 |          2 |      103 | 2025-09-30 |
++---------+------------+----------+------------+
+6 rows in set (0.00 sec)
+
+

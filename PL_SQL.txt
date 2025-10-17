@@ -1,0 +1,195 @@
+mysql> create database Lib;
+Query OK, 1 row affected (0.06 sec)
+
+mysql> use Lib;
+Database changed
+
+mysql> CREATE TABLE Borrower (
+    ->     Rollin INT PRIMARY KEY,
+    ->     Name VARCHAR(50),
+    ->     DateofIssue DATE,
+    ->     NameofBook VARCHAR(100),
+    ->     Status CHAR(1) -- 'I' = Issued, 'R' = Returned
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> CREATE TABLE Fine (
+    ->     Roll_no INT,
+    ->     Date DATE,
+    ->     Amt DECIMAL(10,2),
+    ->     FOREIGN KEY (Roll_no) REFERENCES Borrower(Rollin)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> show tables;
++---------------+
+| Tables_in_Lib |
++---------------+
+| Borrower      |
+| Fine          |
++---------------+
+2 rows in set (0.00 sec)
+
+mysql> INSERT INTO Borrower (Rollin, Name, DateofIssue, NameofBook, Status) VALUES
+    -> (1, 'Amit Sharma', '2025-07-05', 'DBMS Concepts', 'I'),
+    -> (2, 'Priya Nair', '2025-06-28', 'C++ Programming', 'I'),
+    -> (3, 'Rahul Verma', '2025-07-20', 'Data Structures', 'I'),
+    -> (4, 'Sneha Kulkarni', '2025-06-15', 'Operating Systems', 'R'),
+    -> (5, 'Vikram Singh', '2025-07-01', 'Java Fundamentals', 'I'),
+    -> (6, 'Anjali Mehta', '2025-05-30', 'Computer Networks', 'R'),
+    -> (7, 'Karan Joshi', '2025-07-25', 'Python Basics', 'I'),
+    -> (8, 'Rohit Patil', '2025-06-10', 'Database Management', 'R'),
+    -> (9, 'Neha Gupta', '2025-07-15', 'Web Development', 'I'),
+    -> (10, 'Siddharth Rao', '2025-06-05', 'Machine Learning', 'R'),
+    -> (11, 'Pooja Deshmukh', '2025-07-22', 'Artificial Intelligence', 'I'),
+    -> (12, 'Manish Tiwari', '2025-07-12', 'Software Engineering', 'I'),
+    -> (13, 'Divya Bansal', '2025-06-18', 'Cloud Computing', 'R'),
+    -> (14, 'Arjun Pandey', '2025-07-03', 'Cyber Security', 'I'),
+    -> (15, 'Simran Kaur', '2025-06-25', 'Big Data Analytics', 'R');
+Query OK, 15 rows affected (0.06 sec)
+Records: 15  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Borrower (Rollin, Name, DateofIssue, NameofBook, Status) VALUES
+    -> (16, 'Aditya Kulkarni', '2025-07-18', 'Theory of Computation', 'I'),
+    -> (17, 'Meera Joshi', '2025-06-30', 'Compiler Design', 'R'),
+    -> (18, 'Harsh Malhotra', '2025-07-08', 'Mobile App Development', 'I'),
+    -> (19, 'Tanvi Reddy', '2025-06-12', 'Blockchain Technology', 'R'),
+    -> (20, 'Yashwant Patil', '2025-07-14', 'Game Development', 'I'),
+    -> (21, 'Ritika Sharma', '2025-06-20', 'Parallel Computing', 'R'),
+    -> (22, 'Sahil Khan', '2025-07-06', 'Human Computer Interaction', 'I');
+Query OK, 7 rows affected (0.03 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> select * from Borrower;
++--------+-----------------+-------------+----------------------------+--------+
+| Rollin | Name            | DateofIssue | NameofBook                 | Status |
++--------+-----------------+-------------+----------------------------+--------+
+|      1 | Amit Sharma     | 2025-07-05  | DBMS Concepts              | I      |
+|      2 | Priya Nair      | 2025-06-28  | C++ Programming            | I      |
+|      3 | Rahul Verma     | 2025-07-20  | Data Structures            | I      |
+|      4 | Sneha Kulkarni  | 2025-06-15  | Operating Systems          | R      |
+|      5 | Vikram Singh    | 2025-07-01  | Java Fundamentals          | I      |
+|      6 | Anjali Mehta    | 2025-05-30  | Computer Networks          | R      |
+|      7 | Karan Joshi     | 2025-07-25  | Python Basics              | I      |
+|      8 | Rohit Patil     | 2025-06-10  | Database Management        | R      |
+|      9 | Neha Gupta      | 2025-07-15  | Web Development            | I      |
+|     10 | Siddharth Rao   | 2025-06-05  | Machine Learning           | R      |
+|     11 | Pooja Deshmukh  | 2025-07-22  | Artificial Intelligence    | I      |
+|     12 | Manish Tiwari   | 2025-07-12  | Software Engineering       | I      |
+|     13 | Divya Bansal    | 2025-06-18  | Cloud Computing            | R      |
+|     14 | Arjun Pandey    | 2025-07-03  | Cyber Security             | I      |
+|     15 | Simran Kaur     | 2025-06-25  | Big Data Analytics         | R      |
+|     16 | Aditya Kulkarni | 2025-07-18  | Theory of Computation      | I      |
+|     17 | Meera Joshi     | 2025-06-30  | Compiler Design            | R      |
+|     18 | Harsh Malhotra  | 2025-07-08  | Mobile App Development     | I      |
+|     19 | Tanvi Reddy     | 2025-06-12  | Blockchain Technology      | R      |
+|     20 | Yashwant Patil  | 2025-07-14  | Game Development           | I      |
+|     21 | Ritika Sharma   | 2025-06-20  | Parallel Computing         | R      |
+|     22 | Sahil Khan      | 2025-07-06  | Human Computer Interaction | I      |
++--------+-----------------+-------------+----------------------------+--------+
+22 rows in set (0.00 sec)
+
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE FUNCTION CalculateFine(roll_no INT, doi DATE)
+    -> RETURNS DECIMAL(10,2)
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     DECLARE noofdays INT;
+    ->     DECLARE fine_amt DECIMAL(10,2);
+    ->     DECLARE gtfifty INT;
+    -> 
+    ->     -- Calculate days difference
+    ->     SET noofdays = DATEDIFF(CURDATE(), doi);
+    -> 
+    ->     -- Fine calculation logic
+    ->     IF noofdays < 15 THEN
+    ->         SET fine_amt = 0;
+    ->     ELSEIF noofdays BETWEEN 15 AND 30 THEN
+    ->         SET fine_amt = noofdays * 5;
+    ->     ELSE
+    ->         SET gtfifty = noofdays - 30;
+    ->         SET fine_amt = (30 * 5) + (gtfifty * 50);
+    ->     END IF;
+    -> 
+    ->     RETURN fine_amt;
+    -> END$$
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> 
+mysql> DELIMITER ;
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE PROCEDURE ReturnBook(IN p_roll_no INT, IN p_return_date DATE)
+    -> BEGIN
+    ->     DECLARE doi DATE;
+    ->     DECLARE fine_amt DECIMAL(10,2);
+    -> 
+    ->     -- Get date of issue
+    ->     SELECT DateOfIssue INTO doi
+    ->     FROM Borrower
+    ->     WHERE Rollin = p_roll_no;
+    -> 
+    ->     -- Calculate fine
+    ->     SET fine_amt = CalculateFine(p_roll_no, doi);
+    -> 
+    ->     -- Update status to Returned
+    ->     UPDATE Borrower
+    ->     SET Status = 'R'
+    ->     WHERE Rollin = p_roll_no;
+    -> 
+    ->     -- If fine exists, insert record into Fine table
+    ->     IF fine_amt > 0 THEN
+    ->         INSERT INTO Fine (Roll_no, DateOfReturn, Amt)
+    ->         VALUES (p_roll_no, p_return_date, fine_amt);
+    ->     END IF;
+    -> END$$
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> alter table Fine
+    -> rename column Date to DateOfReturn;
+Query OK, 0 rows affected (0.09 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CALL ReturnBook(1, '2025-08-13');
+Query OK, 1 row affected (0.08 sec)
+
+mysql> SELECT * FROM Borrower;
++--------+-----------------+-------------+----------------------------+--------+
+| Rollin | Name            | DateofIssue | NameofBook                 | Status |
++--------+-----------------+-------------+----------------------------+--------+
+|      1 | Amit Sharma     | 2025-07-05  | DBMS Concepts              | R      |
+|      2 | Priya Nair      | 2025-06-28  | C++ Programming            | R      |
+|      3 | Rahul Verma     | 2025-07-20  | Data Structures            | I      |
+|      4 | Sneha Kulkarni  | 2025-06-15  | Operating Systems          | R      |
+|      5 | Vikram Singh    | 2025-07-01  | Java Fundamentals          | I      |
+|      6 | Anjali Mehta    | 2025-05-30  | Computer Networks          | R      |
+|      7 | Karan Joshi     | 2025-07-25  | Python Basics              | I      |
+|      8 | Rohit Patil     | 2025-06-10  | Database Management        | R      |
+|      9 | Neha Gupta      | 2025-07-15  | Web Development            | I      |
+|     10 | Siddharth Rao   | 2025-06-05  | Machine Learning           | R      |
+|     11 | Pooja Deshmukh  | 2025-07-22  | Artificial Intelligence    | I      |
+|     12 | Manish Tiwari   | 2025-07-12  | Software Engineering       | I      |
+|     13 | Divya Bansal    | 2025-06-18  | Cloud Computing            | R      |
+|     14 | Arjun Pandey    | 2025-07-03  | Cyber Security             | I      |
+|     15 | Simran Kaur     | 2025-06-25  | Big Data Analytics         | R      |
+|     16 | Aditya Kulkarni | 2025-07-18  | Theory of Computation      | I      |
+|     17 | Meera Joshi     | 2025-06-30  | Compiler Design            | R      |
+|     18 | Harsh Malhotra  | 2025-07-08  | Mobile App Development     | I      |
+|     19 | Tanvi Reddy     | 2025-06-12  | Blockchain Technology      | R      |
+|     20 | Yashwant Patil  | 2025-07-14  | Game Development           | I      |
+|     21 | Ritika Sharma   | 2025-06-20  | Parallel Computing         | R      |
+|     22 | Sahil Khan      | 2025-07-06  | Human Computer Interaction | I      |
++--------+-----------------+-------------+----------------------------+--------+
+22 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Fine;
++---------+--------------+--------+
+| Roll_no | DateOfReturn | Amt    |
++---------+--------------+--------+
+|       1 | 2025-08-13   | 600.00 |
++---------+--------------+--------+
+1 row in set (0.00 sec)
+

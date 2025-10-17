@@ -1,0 +1,574 @@
+1. College Event Management System
+📌 Problem Statement:
+Design an application to manage college events. The system should allow students to register for events, manage event schedules, and track participation and certificates.
+
+
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| Bank               |
+| Events             |
+| SITS               |
+| Sales              |
+| Students           |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+9 rows in set (0.00 sec)
+
+mysql> use Events
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++------------------+
+| Tables_in_Events |
++------------------+
+| Certificate      |
+| Event            |
+| Organizer        |
+| Registration     |
+| Student          |
+| Venue            |
++------------------+
+6 rows in set (0.01 sec)
+
+mysql> UPDATE Organizer
+    -> SET name = 'Tech Symposium Organizer'
+    -> WHERE organizer_id = 1;
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Event SET fee = 300 WHERE event_id = 1;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Event SET fee = 400 WHERE event_id = 3;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Event SET fee = 500 WHERE event_id = 4;
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from Certificate;
++----------------+------------+----------+------------+
+| certificate_id | student_id | event_id | issue_date |
++----------------+------------+----------+------------+
+|              1 |          1 |        1 | 2025-08-11 |
+|              2 |          2 |        1 | 2025-08-11 |
+|              3 |          2 |        2 | 2025-08-16 |
+|              4 |          4 |        3 | 2025-09-03 |
+|              5 |          5 |        4 | 2025-09-13 |
+|              6 |          1 |        5 | 2025-08-26 |
+|              7 |          6 |        6 | 2025-08-19 |
+|              8 |          7 |        7 | 2025-09-06 |
+|              9 |          8 |        8 | 2025-09-09 |
+|             10 |          3 |        2 | 2025-08-17 |
++----------------+------------+----------+------------+
+10 rows in set (0.01 sec)
+
+mysql> select * from Student;
++------------+----------------+-------------------------+------------------------+------+
+| student_id | name           | email                   | department             | year |
++------------+----------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson  | alice@gmail.com         | Computer Science       |    2 |
+|          2 | Bob Smith      | bob@gmail.com           | Electrical Engineering |    3 |
+|          3 | Charlie Brown  | charlie@example.com     | Computer Science       |    1 |
+|          4 | Divya Sharma   | divya@gmail.com         | Information Technology |    3 |
+|          5 | Ethan Patel    | ethan.patel@gmail.com   | EnTC                   |    3 |
+|          6 | Fatima Khan    | fatima_khan@outlook.com | Civil Engineering      |    2 |
+|          7 | George Mathew  | george@yahoo.com        | Computer Science       |    4 |
+|          8 | Hema Rao       | hema.rao@gmail.com      | Computer Science       |    1 |
+|          9 | Iqbal Ahmed    | iqbal_ahmed@gmail.com   | Information Technology |    2 |
+|         10 | Jaya Nair      | jaya.nair@gmail.com     | EnTC                   |    3 |
+|         11 | Ananya Sharma  | ananya.sharma@gmail.com | Information Technology |    3 |
+|         12 | Rahul Deshmukh | rahul_d@entc.ac.in      | EnTC                   |    2 |
+|         13 | Sneha Patil    | sneha.p@gmail.com       | Computer Science       |    1 |
+|         14 | Aarav Mehta    | aarav.m@mech.edu        | Mechanical Engineering |    4 |
+|         15 | Priya Nair     | priya.nair@gmail.com    | Computer Science       |    3 |
+|         16 | Test User      | testuser@example.com    | IT                     |    2 |
++------------+----------------+-------------------------+------------------------+------+
+16 rows in set (0.01 sec)
+
+mysql> select * from Event;
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+|        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 300.00 |        1 |            1 |
+|        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 400.00 |        1 |            3 |
+|        4 | Smart City Hackathon     | 2025-09-10 | 2025-09-12 | 11:00:00 | 500.00 |        2 |            4 |
+|        5 | Python Coding Challenge  | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 |
+|        6 | Cyber Security Talk      | 2025-08-18 | 2025-08-18 | 15:00:00 |  40.00 |        2 |            6 |
+|        7 | Machine Learning Basics  | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 |
+|        8 | Women in Tech Panel      | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 |
+|        9 | IoT Workshop             | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 |
+|       10 | Blockchain 101           | 2025-09-20 | 2025-09-20 | 11:00:00 | 600.00 |       10 |           10 |
+|       11 | Data Analytics Workshop  | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 |
+|       12 | AI in Healthcare Summit  | 2025-09-28 | 2025-09-28 | 11:30:00 | 250.00 |        2 |            2 |
+|       13 | Game Dev Meetup          | 2025-10-01 | 2025-10-01 | 14:00:00 | 100.00 |        1 |            3 |
+|       14 | Web Dev Bootcamp         | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 |
+|       15 | Tech Startups Expo       | 2025-10-10 | 2025-10-10 | 10:00:00 |   0.00 |        1 |            5 |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+15 rows in set (0.00 sec)
+
+
+mysql> select * from Venue;
++----------+------------------+--------------+----------+
+| venue_id | venue_name       | location     | capacity |
++----------+------------------+--------------+----------+
+|        1 | Main Auditorium  | Building A   |      300 |
+|        2 | Conference Hall  | Building B   |      100 |
+|        3 | Seminar Room 1   | Building C   |       80 |
+|        4 | Open Ground      | Campus North |      500 |
+|        5 | Innovation Lab   | Building D   |       60 |
+|        6 | Mini Auditorium  | Building E   |      150 |
+|        7 | Tech Hall        | Building F   |      120 |
+|        8 | Smart Lab        | Building G   |       70 |
+|        9 | Student Center   | Building H   |      200 |
+|       10 | Engineering Hall | Building I   |      250 |
++----------+------------------+--------------+----------+
+10 rows in set (0.02 sec)
+
+mysql> select * from Registration;
++-----------------+------------+----------+-------------------+
+| registration_id | student_id | event_id | registration_date |
++-----------------+------------+----------+-------------------+
+|               1 |          1 |        1 | 2025-07-20        |
+|               2 |          2 |        1 | 2025-07-21        |
+|               3 |          2 |        2 | 2025-07-22        |
+|               4 |          3 |        2 | 2025-07-22        |
+|               5 |          4 |        3 | 2025-08-15        |
+|               6 |          5 |        4 | 2025-08-20        |
+|               7 |          1 |        5 | 2025-08-18        |
+|               8 |          6 |        6 | 2025-08-15        |
+|               9 |          7 |        7 | 2025-09-01        |
+|              10 |          8 |        8 | 2025-09-05        |
+|              11 |         11 |        1 | 2025-07-25        |
+|              12 |         12 |        2 | 2025-07-26        |
+|              13 |         13 |        1 | 2025-07-27        |
+|              14 |         14 |        2 | 2025-07-28        |
+|              15 |         15 |        1 | 2025-07-28        |
+|              16 |         16 |        1 | 2025-07-29        |
+|              17 |         16 |        3 | 2025-07-29        |
++-----------------+------------+----------+-------------------+
+17 rows in set (0.01 sec)
+
+mysql> select * from Organizer;
++--------------+--------------------------+--------------+
+| organizer_id | name                     | contact      |
++--------------+--------------------------+--------------+
+|            1 | Tech Symposium Organizer | 123-456-7890 |
+|            2 | Jane Williams            | 234-567-8901 |
+|            3 | Rajesh Kumar             | 345-678-9012 |
+|            4 | Sonia Mehta              | 456-789-0123 |
+|            5 | Michael Thomas           | 567-890-1234 |
+|            6 | Sneha Joshi              | 678-901-2345 |
+|            7 | Vikas Sharma             | 789-012-3456 |
+|            8 | Amrita Kaur              | 890-123-4567 |
+|            9 | Rohan Das                | 901-234-5678 |
+|           10 | Leena George             | 012-345-6789 |
++--------------+--------------------------+--------------+
+10 rows in set (0.00 sec)
+
+
+1. Get student info with registered event details
+
+mysql> SELECT s.*, e.*
+    -> FROM Student s
+    -> JOIN Registration r ON s.student_id = r.student_id
+    -> JOIN Event e ON r.event_id = e.event_id;
++------------+----------------+-------------------------+------------------------+------+----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+| student_id | name           | email                   | department             | year | event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++------------+----------------+-------------------------+------------------------+------+----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+|          1 | Alice Johnson  | alice@gmail.com         | Computer Science       |    2 |        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|          2 | Bob Smith      | bob@gmail.com           | Electrical Engineering |    3 |        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|          2 | Bob Smith      | bob@gmail.com           | Electrical Engineering |    3 |        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|          3 | Charlie Brown  | charlie@example.com     | Computer Science       |    1 |        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|          4 | Divya Sharma   | divya@gmail.com         | Information Technology |    3 |        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 |
+|          5 | Ethan Patel    | ethan.patel@gmail.com   | EnTC                   |    3 |        4 | Smart City Hackathon     | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 |
+|          1 | Alice Johnson  | alice@gmail.com         | Computer Science       |    2 |        5 | Python Coding Challenge  | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 |
+|          6 | Fatima Khan    | fatima_khan@outlook.com | Civil Engineering      |    2 |        6 | Cyber Security Talk      | 2025-08-18 | 2025-08-18 | 15:00:00 |  40.00 |        2 |            6 |
+|          7 | George Mathew  | george@yahoo.com        | Computer Science       |    4 |        7 | Machine Learning Basics  | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 |
+|          8 | Hema Rao       | hema.rao@gmail.com      | Computer Science       |    1 |        8 | Women in Tech Panel      | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 |
+|         11 | Ananya Sharma  | ananya.sharma@gmail.com | Information Technology |    3 |        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|         12 | Rahul Deshmukh | rahul_d@entc.ac.in      | EnTC                   |    2 |        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|         13 | Sneha Patil    | sneha.p@gmail.com       | Computer Science       |    1 |        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|         14 | Aarav Mehta    | aarav.m@mech.edu        | Mechanical Engineering |    4 |        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 |
+|         15 | Priya Nair     | priya.nair@gmail.com    | Computer Science       |    3 |        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|         16 | Test User      | testuser@example.com    | IT                     |    2 |        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|         16 | Test User      | testuser@example.com    | IT                     |    2 |        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 |
++------------+----------------+-------------------------+------------------------+------+----------+--------------------------+------------+------------+----------+--------+----------+--------------+
+17 rows in set (0.00 sec)
+
+2. Get all events with organizer and venue details
+
+mysql> SELECT e.*, o.name AS organizer_name, v.venue_name, v.location
+    -> FROM Event e
+    -> JOIN Organizer o ON e.organizer_id = o.organizer_id
+    -> JOIN Venue v ON e.venue_id = v.venue_id;
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+----------------+------------------+------------+
+| event_id | event_name               | start_date | end_date   | time     | fee    | venue_id | organizer_id | organizer_name | venue_name       | location   |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+----------------+------------------+------------+
+|        1 | AI Workshop              | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 | John Doe       | Main Auditorium  | Building A |
+|       11 | Data Analytics Workshop  | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 | John Doe       | Main Auditorium  | Building A |
+|        2 | Robotics Seminar         | 2025-08-15 | 2025-08-15 | 14:00:00 | 130.00 |        2 |            2 | Jane Williams  | Conference Hall  | Building B |
+|       12 | AI in Healthcare Summit  | 2025-09-28 | 2025-09-28 | 11:30:00 | 250.00 |        2 |            2 | Jane Williams  | Conference Hall  | Building B |
+|        3 | Cloud Computing Bootcamp | 2025-09-01 | 2025-09-02 | 09:00:00 | 150.00 |        1 |            3 | Rajesh Kumar   | Main Auditorium  | Building A |
+|       13 | Game Dev Meetup          | 2025-10-01 | 2025-10-01 | 14:00:00 | 100.00 |        1 |            3 | Rajesh Kumar   | Main Auditorium  | Building A |
+|        4 | Smart City Hackathon     | 2025-09-10 | 2025-09-12 | 11:00:00 | 200.00 |        2 |            4 | Sonia Mehta    | Conference Hall  | Building B |
+|       14 | Web Dev Bootcamp         | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 | Sonia Mehta    | Conference Hall  | Building B |
+|        5 | Python Coding Challenge  | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 | Michael Thomas | Main Auditorium  | Building A |
+|       15 | Tech Startups Expo       | 2025-10-10 | 2025-10-10 | 10:00:00 |   0.00 |        1 |            5 | Michael Thomas | Main Auditorium  | Building A |
+|        6 | Cyber Security Talk      | 2025-08-18 | 2025-08-18 | 15:00:00 |  40.00 |        2 |            6 | Sneha Joshi    | Conference Hall  | Building B |
+|        7 | Machine Learning Basics  | 2025-09-05 | 2025-09-05 | 10:00:00 |  60.00 |        1 |            7 | Vikas Sharma   | Main Auditorium  | Building A |
+|        8 | Women in Tech Panel      | 2025-09-08 | 2025-09-08 | 13:00:00 |   0.00 |        2 |            8 | Amrita Kaur    | Conference Hall  | Building B |
+|        9 | IoT Workshop             | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 | Rohan Das      | Student Center   | Building H |
+|       10 | Blockchain 101           | 2025-09-20 | 2025-09-20 | 11:00:00 | 600.00 |       10 |           10 | Leena George   | Engineering Hall | Building I |
++----------+--------------------------+------------+------------+----------+--------+----------+--------------+----------------+------------------+------------+
+15 rows in set (0.01 sec)
+
+3. Get students with their certificates and event details
+
+mysql> SELECT s.*, e.event_name, c.issue_date
+    -> FROM Certificate c
+    -> JOIN Student s ON c.student_id = s.student_id
+    -> JOIN Event e ON c.event_id = e.event_id;
++------------+---------------+-------------------------+------------------------+------+--------------------------+------------+
+| student_id | name          | email                   | department             | year | event_name               | issue_date |
++------------+---------------+-------------------------+------------------------+------+--------------------------+------------+
+|          1 | Alice Johnson | alice@gmail.com         | Computer Science       |    2 | AI Workshop              | 2025-08-11 |
+|          2 | Bob Smith     | bob@gmail.com           | Electrical Engineering |    3 | AI Workshop              | 2025-08-11 |
+|          2 | Bob Smith     | bob@gmail.com           | Electrical Engineering |    3 | Robotics Seminar         | 2025-08-16 |
+|          4 | Divya Sharma  | divya@gmail.com         | Information Technology |    3 | Cloud Computing Bootcamp | 2025-09-03 |
+|          5 | Ethan Patel   | ethan.patel@gmail.com   | EnTC                   |    3 | Smart City Hackathon     | 2025-09-13 |
+|          1 | Alice Johnson | alice@gmail.com         | Computer Science       |    2 | Python Coding Challenge  | 2025-08-26 |
+|          6 | Fatima Khan   | fatima_khan@outlook.com | Civil Engineering      |    2 | Cyber Security Talk      | 2025-08-19 |
+|          7 | George Mathew | george@yahoo.com        | Computer Science       |    4 | Machine Learning Basics  | 2025-09-06 |
+|          8 | Hema Rao      | hema.rao@gmail.com      | Computer Science       |    1 | Women in Tech Panel      | 2025-09-09 |
+|          3 | Charlie Brown | charlie@example.com     | Computer Science       |    1 | Robotics Seminar         | 2025-08-17 |
++------------+---------------+-------------------------+------------------------+------+--------------------------+------------+
+10 rows in set (0.00 sec)
+
+4. Get full event participation data (Student, Event, Organizer, Venue)
+mysql> SELECT s.name AS student_name, e.event_name, o.name AS organizer_name, v.venue_name
+    -> FROM Registration r
+    -> JOIN Student s ON r.student_id = s.student_id
+    -> JOIN Event e ON r.event_id = e.event_id
+    -> JOIN Organizer o ON e.organizer_id = o.organizer_id
+    -> JOIN Venue v ON e.venue_id = v.venue_id;
++----------------+--------------------------+----------------+-----------------+
+| student_name   | event_name               | organizer_name | venue_name      |
++----------------+--------------------------+----------------+-----------------+
+| Alice Johnson  | AI Workshop              | John Doe       | Main Auditorium |
+| Bob Smith      | AI Workshop              | John Doe       | Main Auditorium |
+| Bob Smith      | Robotics Seminar         | Jane Williams  | Conference Hall |
+| Charlie Brown  | Robotics Seminar         | Jane Williams  | Conference Hall |
+| Divya Sharma   | Cloud Computing Bootcamp | Rajesh Kumar   | Main Auditorium |
+| Ethan Patel    | Smart City Hackathon     | Sonia Mehta    | Conference Hall |
+| Alice Johnson  | Python Coding Challenge  | Michael Thomas | Main Auditorium |
+| Fatima Khan    | Cyber Security Talk      | Sneha Joshi    | Conference Hall |
+| George Mathew  | Machine Learning Basics  | Vikas Sharma   | Main Auditorium |
+| Hema Rao       | Women in Tech Panel      | Amrita Kaur    | Conference Hall |
+| Ananya Sharma  | AI Workshop              | John Doe       | Main Auditorium |
+| Rahul Deshmukh | Robotics Seminar         | Jane Williams  | Conference Hall |
+| Sneha Patil    | AI Workshop              | John Doe       | Main Auditorium |
+| Aarav Mehta    | Robotics Seminar         | Jane Williams  | Conference Hall |
+| Priya Nair     | AI Workshop              | John Doe       | Main Auditorium |
+| Test User      | AI Workshop              | John Doe       | Main Auditorium |
+| Test User      | Cloud Computing Bootcamp | Rajesh Kumar   | Main Auditorium |
++----------------+--------------------------+----------------+-----------------+
+17 rows in set (0.00 sec)
+
+6. List students with events they registered for but didn&#39;t get certificates
+mysql> SELECT DISTINCT s.student_id, s.name, e.event_name
+    -> FROM Student s
+    -> JOIN Registration r ON s.student_id = r.student_id
+    -> JOIN Event e ON r.event_id = e.event_id
+    -> LEFT JOIN Certificate c ON r.student_id = c.student_id AND r.event_id = c.event_id
+    -> WHERE c.certificate_id IS NULL;
++------------+----------------+--------------------------+
+| student_id | name           | event_name               |
++------------+----------------+--------------------------+
+|         11 | Ananya Sharma  | AI Workshop              |
+|         12 | Rahul Deshmukh | Robotics Seminar         |
+|         13 | Sneha Patil    | AI Workshop              |
+|         14 | Aarav Mehta    | Robotics Seminar         |
+|         15 | Priya Nair     | AI Workshop              |
+|         16 | Test User      | AI Workshop              |
+|         16 | Test User      | Cloud Computing Bootcamp |
++------------+----------------+--------------------------+
+7 rows in set (0.01 sec)
+
+7. List events with number of registered students
+mysql> SELECT e.event_id, e.event_name, COUNT(r.student_id) AS num_students
+    -> FROM Event e
+    -> LEFT JOIN Registration r ON e.event_id = r.event_id
+    -> GROUP BY e.event_id, e.event_name;
++----------+--------------------------+--------------+
+| event_id | event_name               | num_students |
++----------+--------------------------+--------------+
+|        1 | AI Workshop              |            6 |
+|        2 | Robotics Seminar         |            4 |
+|        3 | Cloud Computing Bootcamp |            2 |
+|        4 | Smart City Hackathon     |            1 |
+|        5 | Python Coding Challenge  |            1 |
+|        6 | Cyber Security Talk      |            1 |
+|        7 | Machine Learning Basics  |            1 |
+|        8 | Women in Tech Panel      |            1 |
+|        9 | IoT Workshop             |            0 |
+|       10 | Blockchain 101           |            0 |
+|       11 | Data Analytics Workshop  |            0 |
+|       12 | AI in Healthcare Summit  |            0 |
+|       13 | Game Dev Meetup          |            0 |
+|       14 | Web Dev Bootcamp         |            0 |
+|       15 | Tech Startups Expo       |            0 |
++----------+--------------------------+--------------+
+15 rows in set (0.02 sec)
+
+8. Get all students and all events they got certificates for
+mysql> SELECT s.name AS student_name, e.event_name
+    -> FROM Certificate c
+    -> JOIN Student s ON c.student_id = s.student_id
+    -> JOIN Event e ON c.event_id = e.event_id;
++---------------+--------------------------+
+| student_name  | event_name               |
++---------------+--------------------------+
+| Alice Johnson | AI Workshop              |
+| Bob Smith     | AI Workshop              |
+| Bob Smith     | Robotics Seminar         |
+| Divya Sharma  | Cloud Computing Bootcamp |
+| Ethan Patel   | Smart City Hackathon     |
+| Alice Johnson | Python Coding Challenge  |
+| Fatima Khan   | Cyber Security Talk      |
+| George Mathew | Machine Learning Basics  |
+| Hema Rao      | Women in Tech Panel      |
+| Charlie Brown | Robotics Seminar         |
++---------------+--------------------------+
+10 rows in set (0.00 sec)
+
+9. List all events a specific student has registered for
+mysql> SELECT e.*
+    -> FROM Registration r
+    -> JOIN Event e ON r.event_id = e.event_id
+    -> WHERE r.student_id = 1;
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name              | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+|        1 | AI Workshop             | 2025-08-10 | 2025-08-10 | 10:00:00 | 150.00 |        1 |            1 |
+|        5 | Python Coding Challenge | 2025-08-25 | 2025-08-25 | 12:00:00 |  20.00 |        1 |            5 |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+2 rows in set (0.01 sec)
+
+10. Find students who have not registered for any event
+mysql> SELECT s.*
+    -> FROM Student s
+    -> LEFT JOIN Registration r ON s.student_id = r.student_id
+    -> WHERE r.registration_id IS NULL;
++------------+-------------+-----------------------+------------------------+------+
+| student_id | name        | email                 | department             | year |
++------------+-------------+-----------------------+------------------------+------+
+|          9 | Iqbal Ahmed | iqbal_ahmed@gmail.com | Information Technology |    2 |
+|         10 | Jaya Nair   | jaya.nair@gmail.com   | EnTC                   |    3 |
++------------+-------------+-----------------------+------------------------+------+
+2 rows in set (0.00 sec)
+
+
+11. List all certificates issued to students in a specific department
+
+mysql> SELECT c.*, s.name, s.department
+    -> FROM Certificate c
+    -> JOIN Student s ON c.student_id = s.student_id
+    -> WHERE s.department = 'Computer Science';
++----------------+------------+----------+------------+---------------+------------------+
+| certificate_id | student_id | event_id | issue_date | name          | department       |
++----------------+------------+----------+------------+---------------+------------------+
+|              1 |          1 |        1 | 2025-08-11 | Alice Johnson | Computer Science |
+|              6 |          1 |        5 | 2025-08-26 | Alice Johnson | Computer Science |
+|             10 |          3 |        2 | 2025-08-17 | Charlie Brown | Computer Science |
+|              8 |          7 |        7 | 2025-09-06 | George Mathew | Computer Science |
+|              9 |          8 |        8 | 2025-09-09 | Hema Rao      | Computer Science |
++----------------+------------+----------+------------+---------------+------------------+
+5 rows in set (0.00 sec)
+
+12. Find events that have not issued any certificates yet
+mysql> SELECT e.*
+    -> FROM Event e
+    -> LEFT JOIN Certificate c ON e.event_id = c.event_id
+    -> WHERE c.certificate_id IS NULL;
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name              | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+|        9 | IoT Workshop            | 2025-09-15 | 2025-09-16 | 09:30:00 | 550.00 |        9 |            9 |
+|       10 | Blockchain 101          | 2025-09-20 | 2025-09-20 | 11:00:00 | 600.00 |       10 |           10 |
+|       11 | Data Analytics Workshop | 2025-09-25 | 2025-09-26 | 10:00:00 | 300.00 |        1 |            1 |
+|       12 | AI in Healthcare Summit | 2025-09-28 | 2025-09-28 | 11:30:00 | 250.00 |        2 |            2 |
+|       13 | Game Dev Meetup         | 2025-10-01 | 2025-10-01 | 14:00:00 | 100.00 |        1 |            3 |
+|       14 | Web Dev Bootcamp        | 2025-10-03 | 2025-10-05 | 09:00:00 | 180.00 |        2 |            4 |
+|       15 | Tech Startups Expo      | 2025-10-10 | 2025-10-10 | 10:00:00 |   0.00 |        1 |            5 |
++----------+-------------------------+------------+------------+----------+--------+----------+--------------+
+7 rows in set (0.00 sec)
+
+13. Retrieve students who have registered for at least one event where the fee is greater than $100
+
+mysql> SELECT DISTINCT s.*
+    -> FROM Student s
+    -> JOIN Registration r ON s.student_id = r.student_id
+    -> JOIN Event e ON r.event_id = e.event_id
+    -> WHERE e.fee > 100;
++------------+----------------+-------------------------+------------------------+------+
+| student_id | name           | email                   | department             | year |
++------------+----------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson  | alice@gmail.com         | Computer Science       |    2 |
+|          2 | Bob Smith      | bob@gmail.com           | Electrical Engineering |    3 |
+|         11 | Ananya Sharma  | ananya.sharma@gmail.com | Information Technology |    3 |
+|         13 | Sneha Patil    | sneha.p@gmail.com       | Computer Science       |    1 |
+|         15 | Priya Nair     | priya.nair@gmail.com    | Computer Science       |    3 |
+|         16 | Test User      | testuser@example.com    | IT                     |    2 |
+|          3 | Charlie Brown  | charlie@example.com     | Computer Science       |    1 |
+|         12 | Rahul Deshmukh | rahul_d@entc.ac.in      | EnTC                   |    2 |
+|         14 | Aarav Mehta    | aarav.m@mech.edu        | Mechanical Engineering |    4 |
+|          4 | Divya Sharma   | divya@gmail.com         | Information Technology |    3 |
+|          5 | Ethan Patel    | ethan.patel@gmail.com   | EnTC                   |    3 |
++------------+----------------+-------------------------+------------------------+------+
+11 rows in set (0.00 sec)
+
+14. Retrieve students who have received a certificate for any event where the fee is greater than $50.
+
+mysql> SELECT DISTINCT s.*
+    -> FROM Certificate c
+    -> JOIN Student s ON c.student_id = s.student_id
+    -> JOIN Event e ON c.event_id = e.event_id
+    -> WHERE e.fee > 50;
++------------+---------------+-----------------------+------------------------+------+
+| student_id | name          | email                 | department             | year |
++------------+---------------+-----------------------+------------------------+------+
+|          1 | Alice Johnson | alice@gmail.com       | Computer Science       |    2 |
+|          2 | Bob Smith     | bob@gmail.com         | Electrical Engineering |    3 |
+|          3 | Charlie Brown | charlie@example.com   | Computer Science       |    1 |
+|          4 | Divya Sharma  | divya@gmail.com       | Information Technology |    3 |
+|          5 | Ethan Patel   | ethan.patel@gmail.com | EnTC                   |    3 |
+|          7 | George Mathew | george@yahoo.com      | Computer Science       |    4 |
++------------+---------------+-----------------------+------------------------+------+
+6 rows in set (0.00 sec)
+
+15. Retrieve students who have attended at least one event organized by a specific organizer (e.g., "Tech Symposium Organizer").
+
+mysql> SELECT DISTINCT s.*
+    -> FROM Student s
+    -> JOIN Registration r ON s.student_id = r.student_id
+    -> JOIN Event e ON r.event_id = e.event_id
+    -> JOIN Organizer o ON e.organizer_id = o.organizer_id
+    -> WHERE o.name = 'Tech Symposium Organizer';
++------------+---------------+-------------------------+------------------------+------+
+| student_id | name          | email                   | department             | year |
++------------+---------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson | alice@gmail.com         | Computer Science       |    2 |
+|          2 | Bob Smith     | bob@gmail.com           | Electrical Engineering |    3 |
+|         11 | Ananya Sharma | ananya.sharma@gmail.com | Information Technology |    3 |
+|         13 | Sneha Patil   | sneha.p@gmail.com       | Computer Science       |    1 |
+|         15 | Priya Nair    | priya.nair@gmail.com    | Computer Science       |    3 |
+|         16 | Test User     | testuser@example.com    | IT                     |    2 |
++------------+---------------+-------------------------+------------------------+------+
+6 rows in set (0.01 sec)
+
+16. Find all students who have registered for events where the start date is in Aug 2025 and the event fee is lower than any given amount (e.g., lower than $200)
+mysql> SELECT DISTINCT s.*
+    -> FROM Student s
+    -> JOIN Registration r ON s.student_id = r.student_id
+    -> JOIN Event e ON r.event_id = e.event_id
+    -> WHERE MONTH(e.start_date) = 8 AND YEAR(e.start_date) = 2025
+    -> AND e.fee < 200;
++------------+----------------+-------------------------+------------------------+------+
+| student_id | name           | email                   | department             | year |
++------------+----------------+-------------------------+------------------------+------+
+|          1 | Alice Johnson  | alice@gmail.com         | Computer Science       |    2 |
+|          2 | Bob Smith      | bob@gmail.com           | Electrical Engineering |    3 |
+|         11 | Ananya Sharma  | ananya.sharma@gmail.com | Information Technology |    3 |
+|         13 | Sneha Patil    | sneha.p@gmail.com       | Computer Science       |    1 |
+|         15 | Priya Nair     | priya.nair@gmail.com    | Computer Science       |    3 |
+|         16 | Test User      | testuser@example.com    | IT                     |    2 |
+|          3 | Charlie Brown  | charlie@example.com     | Computer Science       |    1 |
+|         12 | Rahul Deshmukh | rahul_d@entc.ac.in      | EnTC                   |    2 |
+|         14 | Aarav Mehta    | aarav.m@mech.edu        | Mechanical Engineering |    4 |
+|          6 | Fatima Khan    | fatima_khan@outlook.com | Civil Engineering      |    2 |
++------------+----------------+-------------------------+------------------------+------+
+10 rows in set (0.00 sec)
+
+17. For each event get event_id, event_name, fee along with total registration fee but only when the total fee exceeds $1000
+
+mysql> SELECT e.event_id, e.event_name, e.fee, COUNT(r.student_id) * e.fee AS total_fee
+    -> FROM Event e
+    -> JOIN Registration r ON e.event_id = r.event_id
+    -> GROUP BY e.event_id, e.event_name, e.fee
+    -> HAVING total_fee > 1000;
++----------+-------------+--------+-----------+
+| event_id | event_name  | fee    | total_fee |
++----------+-------------+--------+-----------+
+|        1 | AI Workshop | 300.00 |   1800.00 |
++----------+-------------+--------+-----------+
+1 row in set (0.00 sec)
+
+18. The student information who registered for maximum events
+mysql> SELECT s.*
+    -> FROM Student s
+    -> JOIN (
+    ->     SELECT student_id
+    ->     FROM Registration
+    ->     GROUP BY student_id
+    ->     ORDER BY COUNT(event_id) DESC
+    ->     LIMIT 1
+    -> ) AS max_registered ON s.student_id = max_registered.student_id;
++------------+---------------+-----------------+------------------+------+
+| student_id | name          | email           | department       | year |
++------------+---------------+-----------------+------------------+------+
+|          1 | Alice Johnson | alice@gmail.com | Computer Science |    2 |
++------------+---------------+-----------------+------------------+------+
+1 row in set (0.01 sec)
+
+19. Get details of event event_id, name with maximum registrations
+mysql> SELECT e.*
+    -> FROM Event e
+    -> JOIN (
+    ->     SELECT event_id
+    ->     FROM Registration
+    ->     GROUP BY event_id
+    ->     ORDER BY COUNT(student_id) DESC
+    ->     LIMIT 1
+    -> ) AS max_event ON e.event_id = max_event.event_id;
++----------+-------------+------------+------------+----------+--------+----------+--------------+
+| event_id | event_name  | start_date | end_date   | time     | fee    | venue_id | organizer_id |
++----------+-------------+------------+------------+----------+--------+----------+--------------+
+|        1 | AI Workshop | 2025-08-10 | 2025-08-10 | 10:00:00 | 300.00 |        1 |            1 |
++----------+-------------+------------+------------+----------+--------+----------+--------------+
+1 row in set (0.01 sec)
+
+20. Retrieve students who have not registered for events with a fee greater than $200.
+
+mysql> SELECT DISTINCT s.*
+    -> FROM Student s
+    -> WHERE s.student_id NOT IN (
+    ->     SELECT DISTINCT r.student_id
+    ->     FROM Registration r
+    ->     JOIN Event e ON r.event_id = e.event_id
+    ->     WHERE e.fee > 200
+    -> );
++------------+----------------+-------------------------+------------------------+------+
+| student_id | name           | email                   | department             | year |
++------------+----------------+-------------------------+------------------------+------+
+|          3 | Charlie Brown  | charlie@example.com     | Computer Science       |    1 |
+|          6 | Fatima Khan    | fatima_khan@outlook.com | Civil Engineering      |    2 |
+|          7 | George Mathew  | george@yahoo.com        | Computer Science       |    4 |
+|          8 | Hema Rao       | hema.rao@gmail.com      | Computer Science       |    1 |
+|          9 | Iqbal Ahmed    | iqbal_ahmed@gmail.com   | Information Technology |    2 |
+|         10 | Jaya Nair      | jaya.nair@gmail.com     | EnTC                   |    3 |
+|         12 | Rahul Deshmukh | rahul_d@entc.ac.in      | EnTC                   |    2 |
+|         14 | Aarav Mehta    | aarav.m@mech.edu        | Mechanical Engineering |    4 |
++------------+----------------+-------------------------+------------------------+------+
+8 rows in set (0.00 sec)
